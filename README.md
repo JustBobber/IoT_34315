@@ -12,7 +12,7 @@
 
 ```bash
 git clone https://github.com/JustBobber/IoT_34315
-cd <projekt-mappe>
+cd IoT_34315
 ```
 
 ### 2. Opret virtuelt miljø
