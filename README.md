@@ -2,7 +2,7 @@
 
 ## Forudsætninger
 
-- Python 3.3 eller nyere (tjek med `python --version`)
+- Python 3.3 eller nyere (tjek med `python --version` eller `python3 --version`)
 
 ---
 
