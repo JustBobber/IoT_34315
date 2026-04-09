@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>our top fancy Dashboard</title>
+</head>
+<body>
+{% if user %}
+    <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+{% else %}
+    <a href="{{ url_for('login') }}"><button>Login</button></a>
+{% endif %}
+
+{% if user %}
+    <h1>Welcome <i>{{ user }}</i> to our top fancy Dashboard</h1>
+{% else %}
+    <h1>Welcome <u>random user</u> to our top fancy Dashboard</h1>
+{% endif %}
+
+</h1>
+<pre>
+--- sessions overview *er dette bare index.html?* ---
+   max
+   distance
+     ^                    *  *            tooltip:
+     |             *  * *      *            - max dist
+     | *       * *                          - timestamp
+     |    *  *                              - session duration ?
+     -----------------------------> time
+      ts ts ts ts ts ts ts ts ts ts
+</pre>
+
+</body>
+</html>

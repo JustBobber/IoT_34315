@@ -1,9 +1,9 @@
 import sqlite3
 import uuid
-from datetime import datetime
+import os
 
-DB_PATH = "training.db"
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "..", "training.db")
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -15,7 +15,7 @@ def init_db():
     with get_connection() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS users (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 username    TEXT UNIQUE NOT NULL,
                 created_at  TEXT NOT NULL DEFAULT (datetime('now'))
             );
@@ -42,9 +42,20 @@ def init_db():
 # --- Users ---
 
 def create_user(username):
+    # TODO: fix så appen ikke chrashser hvis vi adder en user med username der allerede findes.
     with get_connection() as conn:
         conn.execute("INSERT INTO users (username) VALUES (?)", (username,))
         return conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+
+def get_all_users():
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM users").fetchall()
+
+def login_user(user_id):
+    with get_connection() as conn:
+        row = conn.execute("SELECT username FROM users where user_id = ?", (user_id, )).fetchone()
+        if row:
+            return row["username"]
 
 
 # --- Sessions ---

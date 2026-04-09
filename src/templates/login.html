@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Vælg bruger</h1>
+
+    <!-- Liste eksisterende brugere -->
+    <ul>
+        {% for user in users %}
+            <li>
+                <a href="{{ url_for('login_select', user_id=user.user_id) }}">
+                    <button>{{ user.username }}</button></a>
+            </li>
+        {% else %}
+            <li>Ingen brugere endnu.</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <!-- Opret ny bruger -->
+    <h2>Opret ny bruger</h2>
+    <form method="POST" action="/login/create">
+        <input type="text" name="username" placeholder="Brugernavn" required>
+        <button type="submit">Opret</button>
+    </form>
+
+    <a href="{{ url_for('index') }}">← Tilbage</a>
+</body>
+</html>
