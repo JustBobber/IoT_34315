@@ -1,0 +1,69 @@
+# Kom i gang med projektet
+
+## Forudsætninger
+
+- Python 3.3 eller nyere (tjek med `python --version`)
+
+---
+
+## Opsætning
+
+### 1. Klon projektet
+
+```bash
+git clone <repo-url>
+cd <projekt-mappe>
+```
+
+### 2. Opret virtuelt miljø
+
+```bash
+python -m venv .venv
+```
+
+### 3. Aktivér miljøet
+
+**macOS / Linux:**
+```bash
+source .venv/bin/activate
+```
+
+**Windows:**
+```bash
+.venv\Scripts\activate
+```
+
+Du kan se at miljøet er aktivt når terminalen viser `(.venv)` foran din prompt.
+
+### 4. Installér afhængigheder
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Daglig brug
+
+Hver gang du åbner en ny terminal skal du aktivere miljøet igen:
+
+```bash
+source .venv/bin/activate   # macOS / Linux
+.venv\Scripts\activate      # Windows
+```
+
+Deaktivér når du er færdig:
+
+```bash
+deactivate
+```
+
+---
+
+## Tilføj nye pakker
+
+```bash
+pip install <pakkenavn>
+pip freeze > requirements.txt   # Opdatér requirements.txt bagefter
+```
+
