@@ -43,8 +43,9 @@ pip install -r requirements.txt
 
 ---
 
-## Daglig brug
+# Daglig brug
 
+## aktiver virtual enviroment
 Hver gang du åbner en ny terminal skal du aktivere miljøet igen:
 
 ```bash
@@ -52,7 +53,14 @@ source .venv/bin/activate   # macOS / Linux
 .venv\Scripts\activate      # Windows
 ```
 
-Deaktivér når du er færdig:
+## start webappen
+```bash
+python3 src/app.py
+```
+besøg siden: localhost:5050
+
+
+Deaktivér venv når du er færdig:
 
 ```bash
 deactivate
@@ -66,4 +74,3 @@ deactivate
 pip install <pakkenavn>
 pip freeze > requirements.txt   # Opdatér requirements.txt bagefter
 ```
-
