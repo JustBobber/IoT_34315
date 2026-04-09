@@ -1,12 +1,36 @@
 # Database
 *.db
+*.sqlite
+*.sqlite3
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .env
+.env.*
 venv/
 .venv/
+
+# IDE - IntelliJ/PyCharm
+.idea/
+
+# IDE - VS Code
+.vscode/
+
+# IDE - Eclipse
+.project
+.settings/
+
+# OS filer
+.DS_Store          # Mac
+Thumbs.db          # Windows
+desktop.ini        # Windows
+
+# Logs
+*.log
+logs/
 
 # Excalidraw
 *.excalidraw
