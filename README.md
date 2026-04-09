@@ -11,7 +11,7 @@
 ### 1. Klon projektet
 
 ```bash
-git clone <repo-url>
+git clone [<repo-url>](https://github.com/JustBobber/IoT_34315)
 cd <projekt-mappe>
 ```
 
