@@ -6,20 +6,38 @@ from database import init_db, create_user, start_session, end_session,   \
 
 app = Flask(__name__)
 
-app.secret_key = "super hemmelig key"
+app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user sessions
+
 
 @app.route("/")
 def index():
+	"""
+	Index page
+	:return: Hvis brugeren er logget ind, returneres index.html med username. Ellers returneres index.html uden bruger.
+	"""
 	user = session.get("username")
 	return render_template("index.html", user=user)
 
+# ===============================================================
+#					Start of user endpoints
+# ===============================================================
+
 @app.route("/login")
 def login():
+	"""
+	Login page, her kan logges ind i en eksisterende bruger eller oprettes en ny bruger.
+		Der er ikke noget password, da det ikke umiddelbart er nødvendigt
+	:return: login.html med alle brugere i databasen.
+	"""
 	users = get_all_users()
 	return render_template("login.html", users=users)
 
 @app.route("/login/create", methods=["POST"])
 def login_create_user():
+	"""
+	Opretter user i databasen hvis der ikke allerede er en user med dette username.
+	:return: Sender bruger tilbage til login siden, hvor den nye bruger nu er at finde i listen over brugere.
+	"""
 	username = request.form.get("username", "").strip()
 	if username:
 		create_user(username)
@@ -27,6 +45,11 @@ def login_create_user():
 
 @app.route("/login/select/<int:user_id>")
 def login_select(user_id):
+	"""
+	Login som en eksisterende user.
+	:param user_id: User's id, som findes i databasen. Bruges til at logge ind som denne user.
+	:return: Sender brugeren til index siden.
+	"""
 	username = login_user(user_id)
 	if username:
 		session["username"] = username
@@ -34,15 +57,23 @@ def login_select(user_id):
 
 @app.route("/logout")
 def logout():
+	"""
+	Logger user ud ved at fjerne user fra sessionen.
+	:return: Sender brugeren tilbage til index siden.
+	"""
 	session.pop("username", None)
 	return redirect(url_for("index"))
+
+# ===============================================================
+#					End of user endpoints
+# ===============================================================
+
 
 @app.route("/view_session")
 def view_session():
 	# TODO: implement some session specific view.
 	pass
 	# return render_template("view_session.html")
-
 
 @app.route("/data", methods=["POST"])
 def receive_data_from_esp():
