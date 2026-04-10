@@ -7,7 +7,7 @@
 </head>
 <body>
 <div>
-    {% if user %}
+    {% if user and user_id %}
         <a href="{{ url_for('logout') }}"><button>Logout</button></a>
         <a href="{{ url_for('login') }}"><button>Switch user</button></a>
     {% else %}
@@ -22,7 +22,8 @@
 
 </h1>
 <pre>
---- sessions overview *er dette bare index.html?* ---
+--- sessions overview *er dette bare index.html?*  ---
+    <i> et overblik alle sessions' max distance</i>
 
    max
    distance
@@ -35,7 +36,11 @@
 
 </pre>
 <div>
-
+    {% if user and user_id %}
+        <a href="{{ url_for('view_users_sessions', user_id=user_id) }}">
+            <button>See my sessions</button>
+        </a>
+    {% endif %}
 </div>
 </body>
 </html>

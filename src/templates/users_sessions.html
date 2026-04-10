@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Here is all the sessions for user: ...</title>
+</head>
+<body>
+{% for session in sessions %}
+    <div>
+        <h2>Session {{ session.session_id }}</h2>
+        <p>Max Distance: {{ session.max_distance }}</p>
+        <p>Duration: {{ session.duration }}</p>
+        <p>Timestamp: {{ session.timestamp }}</p>
+    </div>
+{% else %}
+    <p>No sessions found for this user.</p>
+{% endfor %}
+
+</body>
+</html>

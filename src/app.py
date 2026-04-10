@@ -16,7 +16,8 @@ def index():
 	:return: Hvis brugeren er logget ind, returneres index.html med username. Ellers returneres index.html uden bruger.
 	"""
 	user = session.get("username")
-	return render_template("index.html", user=user)
+	user_id = session.get("user_id")
+	return render_template("index.html", user=user, user_id=user_id)
 
 # ===============================================================
 #					Start of user endpoints
@@ -53,6 +54,7 @@ def login_select(user_id):
 	username = login_user(user_id)
 	if username:
 		session["username"] = username
+		session["user_id"] = user_id
 	return redirect(url_for("index"))
 
 @app.route("/logout")
@@ -68,6 +70,10 @@ def logout():
 #					End of user endpoints
 # ===============================================================
 
+@app.route("/view_users_sessions/<int:user_id>")
+def view_users_sessions(user_id):
+	users_sessions = get_users_sessions(user_id)
+	return render_template("users_sessions.html", users_sessions=users_sessions)
 
 @app.route("/view_session")
 def view_session():
@@ -79,6 +85,9 @@ def view_session():
 def receive_data_from_esp():
 	# TODO: implement me..
 	pass
+	if "username" not in session:
+		return {"error": "no user logged in"}, 401  # sender err tilbage til esp der så skal stoppe logning.
+													# det er bare et forslag, ved ikke helt om det skal være sådan.
 
 
 if __name__ == "__main__":
