@@ -6,13 +6,16 @@
 </head>
 <body>
 {% for session in users_sessions %}
-    <div>
-        <h2>Session {{ session.session_id }} d. {{ session.start_time }}</h2>
-        <p>Max Distance: {{ session.max_distance }}</p>
-        <p>Max Pressure: {{ session.max_pressure}}</p>
-<!--        TODO: fix durantion den fucker når der ikke er end_time i db  lav den med: session.end_time - session.start_time -->
-<!--        <p>Duration: </p>-->
-    </div>
+    <a href="{{ url_for('session_details', session_uuid=session.session_uuid) }}" class="session-card">
+        <div>
+            <h2>Session {{ session.session_id }} d. {{ session.start_time }}</h2>
+            <p>session uuid: {{ session.session_uuid }}</p>
+            <p>Max Distance: {{ session.max_distance }}</p>
+            <p>Max Pressure: {{ session.max_pressure}}</p>
+<!--            TODO: fix durantion den fucker når der ikke er end_time i db  lav den med: session.end_time - session.start_time -->
+<!--            <p>Duration: </p>-->
+        </div>
+    </a>
 {% else %}
     <p>No sessions found for this user.</p>
 {% endfor %}

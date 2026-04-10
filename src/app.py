@@ -75,11 +75,10 @@ def view_users_sessions(user_id):
 	users_sessions = get_users_sessions(user_id)
 	return render_template("users_sessions.html", users_sessions=users_sessions)
 
-@app.route("/view_session")
-def view_session():
+@app.route("/session_details/<session_uuid>")
+def session_details(session_uuid):
 	# TODO: implement some session specific view.
-	pass
-	# return render_template("view_session.html")
+	return render_template("session_details.html", session_uuid=session_uuid)
 
 @app.route("/data", methods=["POST"])
 def receive_data_from_esp():
