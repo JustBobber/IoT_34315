@@ -15,7 +15,7 @@ def init_db():
     with get_connection() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS users (
-                user_id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER PRIMARY KEY AUTOINCREMENT,
                 username    TEXT UNIQUE NOT NULL,
                 created_at  TEXT NOT NULL DEFAULT (datetime('now'))
             );
@@ -81,8 +81,17 @@ def end_session(session_uuid):
 def get_session(session_uuid):
     with get_connection() as conn:
         return conn.execute(
-            "SELECT * FROM sessions WHERE session_uuid = ?", (session_uuid,)
+            "SELECT * FROM sessions WHERE session_uuid = ?",
+            (session_uuid,)
         ).fetchone()
+
+
+def get_users_sessions(user_id):
+    with get_connection() as conn:
+        return conn.execute(
+            "SELECT * FROM sessions WHERE user_id = ?",
+            (user_id,)
+        ).fetchall()
 
 
 # --- Session data ---

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from database import init_db, create_user, start_session, end_session,   \
                      get_session, insert_session_data, get_session_data, \
-					 get_all_users, login_user
+					 get_all_users, login_user, get_users_sessions
 
 
 app = Flask(__name__)
