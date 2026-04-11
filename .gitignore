@@ -34,3 +34,6 @@ logs/
 
 # Excalidraw
 *.excalidraw
+
+# Others 
+esp_pinout.webp
