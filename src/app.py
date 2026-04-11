@@ -74,7 +74,7 @@ def logout():
 def view_users_sessions(user_id):
 	"""
 	Henter alle trænings sessions for den givne bruger.
-	:param user_id: user_id på brugeren der er logget ind. 
+	:param user_id: user_id på brugeren der er logget ind.
 	:return: Alle sessions for den user med det givne id
 	"""
 	users_sessions = get_users_sessions(user_id)
