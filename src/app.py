@@ -72,6 +72,11 @@ def logout():
 
 @app.route("/view_users_sessions/<int:user_id>")
 def view_users_sessions(user_id):
+	"""
+	Henter alle trænings sessions for den givne bruger.
+	:param user_id: user_id på brugeren der er logget ind. 
+	:return: Alle sessions for den user med det givne id
+	"""
 	users_sessions = get_users_sessions(user_id)
 	return render_template("users_sessions.html", users_sessions=users_sessions)
 
