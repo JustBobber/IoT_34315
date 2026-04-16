@@ -92,6 +92,12 @@ def view_users_sessions(user_id):
 
 @app.route("/start_session", methods=["POST"])
 def start_session_endpoint():
+	"""
+	Opretter en ny trænings session i databasen for den user der er logget ind
+	og med en nyt genereret sessions uuid fra esp controlleren.
+
+	:return: 200 hvis der er en user logget ind. Eller err 401 hvis der ikke er en nogen user logget ind.
+	"""
 	if "username" not in session:
 		return {"error": "no user logged in"}, 401
 
@@ -104,18 +110,29 @@ def start_session_endpoint():
 
 @app.route("/data", methods=["POST"])
 def receive_data_from_esp():
+	"""
+	Indsætter distance i den igangværende trænings session i databasen,
+	sessionen identificeres vha. session_uuid, som modtages fra esp'en.
+		TODO: bør tjekke at session_uuid faktisk findes i databasen.
+	:return: 200
+	"""
 	data = request.get_json()
 	insert_session_data(data["session_uuid"], data["distance"])
 	return {"status": "ok"}, 200
 
 @app.route("/data", methods=["GET"])
 def end_session_endpoint():
+	"""
+	Afslutter en trænings session med sessions_uuid modtaget fra esp'en
+		TODO: bør tjekke at session_uuid faktisk findes i databasen.
+	:return: 200
+	"""
 	data = request.get_json()
 	end_session(data["session_uuid"])
 	return {"status": "ok"}, 200
 
 # ===============================================================
-#			Start of ESP communication and data retrieval
+#			End of ESP communication and data retrieval
 # ===============================================================
 
 @app.route("/session_details/<session_uuid>")
