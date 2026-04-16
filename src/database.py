@@ -4,7 +4,7 @@ import os
 from contextlib import contextmanager
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "..", "training.db")
+DB_PATH = os.path.join(BASE_DIR, ".", "training.db")
 
 
 @contextmanager
@@ -35,7 +35,6 @@ def init_db():
                 start_time    TEXT NOT NULL DEFAULT (datetime('now')),
                 end_time      TEXT,
                 user_id       INTEGER REFERENCES users(id),
-                max_pressure  REAL,
                 max_distance  REAL
             );
 
@@ -43,8 +42,7 @@ def init_db():
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_uuid  TEXT REFERENCES sessions(session_uuid),
                 timestamp     TEXT NOT NULL DEFAULT (datetime('now')),
-                distance      REAL,
-                pressure      REAL
+                distance      REAL
             );
         """)
 
