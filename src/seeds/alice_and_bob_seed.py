@@ -2,8 +2,10 @@ import sqlite3
 import uuid
 import random
 from datetime import datetime, timedelta
+import os
 
-DB_PATH = "../training.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "..", "training.db")
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
