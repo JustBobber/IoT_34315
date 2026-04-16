@@ -6,7 +6,12 @@ from database import init_db, create_user, start_session, end_session,   \
 
 app = Flask(__name__)
 
+
+
 app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user sessions
+# i tilfælde af vi ikke vil have at user forbliver logget ind, så brug denne metode:
+#		import os
+#		app.secret_key = os.urandom(24)
 
 
 @app.route("/")
