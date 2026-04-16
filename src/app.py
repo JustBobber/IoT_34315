@@ -1,11 +1,11 @@
 from flask import Flask, render_template, redirect, url_for, request, session
+from datetime import datetime
 from database import init_db, create_user, start_session, end_session,   \
                      get_session, insert_session_data, get_session_data, \
 					 get_all_users, login_user, get_users_sessions
 
 
 app = Flask(__name__)
-
 
 
 app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user sessions
@@ -75,22 +75,12 @@ def logout():
 #					End of user endpoints
 # ===============================================================
 
-# @app.route("/view_users_sessions/<int:user_id>")
-# def view_users_sessions(user_id):
-# 	"""
-# 	Henter alle trænings sessions for den givne bruger.
-# 	:param user_id: user_id på brugeren der er logget ind.
-# 	:return: Alle sessions for den user med det givne id
-# 	"""
-# 	users_sessions = get_users_sessions(user_id)
-# 	return render_template("users_sessions.html", users_sessions=users_sessions)
-from datetime import datetime
-
 
 @app.route("/view_users_sessions/<int:user_id>")
 def view_users_sessions(user_id):
 	users_sessions = get_users_sessions(user_id)
 
+	# beregner og tilføjer duration af session ud fra start og slut tid.
 	sessions_with_duration = []
 	for s in users_sessions:
 		s = dict(s)
