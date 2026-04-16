@@ -116,8 +116,6 @@ def get_users_sessions(user_id):
         ).fetchall()
 
 
-
-
 def get_session_data(session_uuid):
     with get_connection() as conn:
         return conn.execute(

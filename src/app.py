@@ -4,15 +4,12 @@ from database import init_db, create_user, start_session, end_session,   \
                      get_session, insert_session_data, get_session_data, \
 					 get_all_users, login_user, get_users_sessions
 
-
 app = Flask(__name__)
-
 
 app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user sessions
 # i tilfælde af vi ikke vil have at user forbliver logget ind, så brug denne metode:
 #		import os
 #		app.secret_key = os.urandom(24)
-
 
 @app.route("/")
 def index():
@@ -75,6 +72,10 @@ def logout():
 #					End of user endpoints
 # ===============================================================
 
+# ===============================================================
+#					Start of user sessions view
+# ===============================================================
+
 
 @app.route("/view_users_sessions/<int:user_id>")
 def view_users_sessions(user_id):
@@ -97,7 +98,15 @@ def view_users_sessions(user_id):
 
 	return render_template("users_sessions.html", users_sessions=sessions_with_duration)
 
+@app.route("/session_details/<session_uuid>")
+def session_details(session_uuid):
+	# TODO: implement some session specific view.
+	session_data = get_session_data(session_uuid)
+	return render_template("session_details.html", session_data=session_data)
 
+# ===============================================================
+#					End of user sessions view
+# ===============================================================
 
 # ===============================================================
 #			Start of ESP communication and data retrieval
@@ -147,12 +156,6 @@ def end_session_endpoint():
 # ===============================================================
 #			End of ESP communication and data retrieval
 # ===============================================================
-
-@app.route("/session_details/<session_uuid>")
-def session_details(session_uuid):
-	# TODO: implement some session specific view.
-	return render_template("session_details.html", session_uuid=session_uuid)
-
 
 
 if __name__ == "__main__":

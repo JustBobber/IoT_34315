@@ -5,6 +5,11 @@
     <title>Title</title>
 </head>
 <body>
-    <p>Forestil dig nogle session details her, og en graf med data fra træningssessionen..</p>
+    <p>Forestil dig nogle session details her, og en graf med data fra træningssessionen i stedet for dette:</p>
+    {% for datapoint in session_data %}
+        <p>Distance: {{ datapoint.distance }}</p>
+        <p>Timestamp: {{ datapoint.timestamp }}</p>
+    {% endfor %}
+
 </body>
 </html>
