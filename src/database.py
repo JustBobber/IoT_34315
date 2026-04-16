@@ -34,7 +34,7 @@ def init_db():
                 session_uuid  TEXT PRIMARY KEY,
                 start_time    TEXT NOT NULL DEFAULT (datetime('now')),
                 end_time      TEXT,
-                user_id       INTEGER REFERENCES users(id),
+                user_id       INTEGER REFERENCES users(user_id),
                 max_distance  REAL
             );
 
@@ -68,8 +68,7 @@ def login_user(user_id):
 
 # --- Sessions ---
 
-def start_session(user_id):
-    session_uuid = str(uuid.uuid4())
+def start_session(session_uuid, user_id):
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO sessions (session_uuid, user_id) VALUES (?, ?)",
@@ -77,6 +76,21 @@ def start_session(user_id):
         )
     return session_uuid
 
+# --- Session data ---
+
+def insert_session_data(session_uuid, distance):
+    with get_connection() as conn:
+        conn.execute(
+            """INSERT INTO session_data (session_uuid, distance)
+               VALUES (?, ?)""",
+            (session_uuid, distance)
+        )
+        conn.execute(
+            """UPDATE sessions SET
+                max_distance = MAX(COALESCE(max_distance, 0), ?)
+               WHERE session_uuid = ?""",
+            (distance, session_uuid)
+        )
 
 def end_session(session_uuid):
     with get_connection() as conn:
@@ -102,22 +116,6 @@ def get_users_sessions(user_id):
         ).fetchall()
 
 
-# --- Session data ---
-
-def insert_session_data(session_uuid, distance, pressure):
-    with get_connection() as conn:
-        conn.execute(
-            """INSERT INTO session_data (session_uuid, distance, pressure)
-               VALUES (?, ?, ?)""",
-            (session_uuid, distance, pressure)
-        )
-        conn.execute(
-            """UPDATE sessions SET
-                max_pressure = MAX(COALESCE(max_pressure, 0), ?),
-                max_distance = MAX(COALESCE(max_distance, 0), ?)
-               WHERE session_uuid = ?""",
-            (pressure, distance, session_uuid)
-        )
 
 
 def get_session_data(session_uuid):

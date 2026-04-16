@@ -80,18 +80,44 @@ def view_users_sessions(user_id):
 	users_sessions = get_users_sessions(user_id)
 	return render_template("users_sessions.html", users_sessions=users_sessions)
 
+
+# ===============================================================
+#			Start of ESP communication and data retrieval
+# ===============================================================
+
+@app.route("/start_session", methods=["POST"])
+def start_session_endpoint():
+	if "username" not in session:
+		return {"error": "no user logged in"}, 401
+
+	data = request.get_json()
+	session_uuid = data["session_uuid"]
+	user_id = session.get("user_id")
+	start_session(session_uuid, user_id)
+	return {"status": "ok"}, 200
+
+
+@app.route("/data", methods=["POST"])
+def receive_data_from_esp():
+	data = request.get_json()
+	insert_session_data(data["session_uuid"], data["distance"])
+	return {"status": "ok"}, 200
+
+@app.route("/data", methods=["GET"])
+def end_session_endpoint():
+	data = request.get_json()
+	end_session(data["session_uuid"])
+	return {"status": "ok"}, 200
+
+# ===============================================================
+#			Start of ESP communication and data retrieval
+# ===============================================================
+
 @app.route("/session_details/<session_uuid>")
 def session_details(session_uuid):
 	# TODO: implement some session specific view.
 	return render_template("session_details.html", session_uuid=session_uuid)
 
-@app.route("/data", methods=["POST"])
-def receive_data_from_esp():
-	# TODO: implement me..
-	pass
-	if "username" not in session:
-		return {"error": "no user logged in"}, 401  # sender err tilbage til esp der så skal stoppe logning.
-													# det er bare et forslag, ved ikke helt om det skal være sådan.
 
 
 if __name__ == "__main__":
