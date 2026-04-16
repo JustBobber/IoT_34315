@@ -124,6 +124,7 @@ def start_session_endpoint():
 		return {"error": "no user logged in"}, 401
 
 	data = request.get_json()
+	print(data)
 	session_uuid = data["session_uuid"]
 	user_id = session.get("user_id")
 	start_session(session_uuid, user_id)
@@ -140,9 +141,10 @@ def receive_data_from_esp():
 	"""
 	data = request.get_json()
 	insert_session_data(data["session_uuid"], data["distance"])
+	print(data)
 	return {"status": "ok"}, 200
 
-@app.route("/data", methods=["GET"])
+@app.route("/end_session", methods=["POST"])
 def end_session_endpoint():
 	"""
 	Afslutter en trænings session med sessions_uuid modtaget fra esp'en
@@ -150,6 +152,7 @@ def end_session_endpoint():
 	:return: 200
 	"""
 	data = request.get_json()
+	print(data)
 	end_session(data["session_uuid"])
 	return {"status": "ok"}, 200
 
