@@ -68,9 +68,14 @@ deactivate
 
 ---
 
-## Tilføj nye pakker
+## populer databasen: 
+For at få noget data i databasen kør følgede script:
 
 ```bash
-pip install <pakkenavn>
-pip freeze > requirements.txt   # Opdatér requirements.txt bagefter
+python3 src/seeds/alice_and_bob_seed.py
 ```
+Det tilføjer et par users og generere et par sessions og noget data. 
+Det kan køres flere gange hvis der ønskes mere data. 
+
+## slet databasen:
+Det kan være nødvendigt/rart at slette database (training.db) den bør ligge her: src/training.db
