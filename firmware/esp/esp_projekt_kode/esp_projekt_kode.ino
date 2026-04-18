@@ -3,28 +3,32 @@
 #include <Arduino.h>
 
 // hardware setup
-
 const int START_BUTTON_PIN = 21;
 const int STOP_BUTTON_PIN = 22;
-
-bool session_in_progress = false;
-String session_uuid = "";
+// tof = VL53L0X();  // init tof sensor 
 
 /*
 * Sørg for at starte serveren for at modtage og se dataene på localhost:5050.
 */
-const char* WIFI_SSID = "<wifi name>";				// update ssid
+const char* WIFI_SSID = "<wifi name>";				    // update ssid
 const char* WIFI_PASSWORD = "<wifi password>";			// update pw
-const char* SERVER_BASE_URL = "http://<...ip...:5050";		// update ip
+const char* SERVER_BASE_URL = "http://<...ip...:5050";	// update ip
 
-const int INTERVAL_SEK = 20;  // Hvor ofte der sendes
 const int SECOND_IN_MILLIS = 1000;
+
+// data sending consts and variables
+const int INTERVAL_SEK = 20;  // Hvor ofte der sendes
 const unsigned long TCP_MESSAGE_INTERVAL = 20 * SECOND_IN_MILLIS;
 unsigned long last_tcp_message_send_time = millis();
 
+// session variables
+bool session_in_progress = false;
+String session_uuid = "";
+
+// user consts and variables
+bool user_logged_in = false;
 const unsigned long POLL_INTERVAL = 5 * SECOND_IN_MILLIS;  // poll hvert 5. sekund
 unsigned long last_poll_time = 0;
-bool user_logged_in = false;
 
 
 void setup() {
@@ -40,7 +44,6 @@ void setup() {
 
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);
   pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
-
 }
 
 void loop() {
@@ -99,7 +102,7 @@ void loop() {
 * generates an uuid for the current training session such that we can make sure
 * it is the esp's stop button that starts and ends a given training session.
 *
-* return: String uuid for training session.
+* return String: uuid for training session.
 */
 String generateUUID() {
   char uuid[37];
@@ -117,7 +120,7 @@ String generateUUID() {
 * initiate a new training session. The server checks that a user is logged in for the
 * given training session.
 *
-* return: boolean, true if a user is logged in to the webapp otherwise false.
+* return boolean: true if a user is logged in to the webapp otherwise false.
 */
 bool startSession(String uuid) {
 
@@ -148,7 +151,7 @@ bool startSession(String uuid) {
 * Stops an ongoing training session.
 *
 * return boolean: true if training was not in progress or stopped.
-                  false if there was no connection to wifi or server responds with err.
+*                 false if there was no connection to wifi or server responds with err.
 */
 bool stopSession(String uuid) {
 
@@ -201,4 +204,3 @@ void pollUserStatus() {
     }
     http.end();
 }
-
