@@ -15,7 +15,7 @@ String session_uuid = "";
 */
 const char* WIFI_SSID = "<wifi name>";				// update ssid
 const char* WIFI_PASSWORD = "<wifi password>";			// update pw
-const char* SERVER_URL = "http://<...ip...:5050/data";		// update ip
+const char* SERVER_BASE_URL = "http://<...ip...:5050";		// update ip
 
 const int INTERVAL_SEK = 20;  // Hvor ofte der sendes
 const int SECOND_IN_MILLIS = 1000;
@@ -91,7 +91,6 @@ void loop() {
                 Serial.println(svar == 200 ? "Sendt OK" : "Fejl: " + String(svar));
                 http.end();
             }
-
         }
     }
 }
