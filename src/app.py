@@ -11,6 +11,9 @@ app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user 
 #		import os
 #		app.secret_key = os.urandom(24)
 
+app_state = {"user_id": None}  # bruges så vi kan sende user til esp'en så den kan vide om der er en logget ind.
+
+
 @app.route("/")
 def index():
 	"""
@@ -57,6 +60,8 @@ def login_select(user_id):
 	if username:
 		session["username"] = username
 		session["user_id"] = user_id
+		app_state["user_id"] = user_id
+
 	return redirect(url_for("index"))
 
 @app.route("/logout")
@@ -66,6 +71,7 @@ def logout():
 	:return: Sender brugeren tilbage til index siden.
 	"""
 	session.pop("username", None)
+	app_state["user_id"] = None
 	return redirect(url_for("index"))
 
 # ===============================================================
@@ -120,13 +126,14 @@ def start_session_endpoint():
 
 	:return: 200 hvis der er en user logget ind. Eller err 401 hvis der ikke er en nogen user logget ind.
 	"""
-	if "username" not in session:
+	if app_state["user_id"] is None:
 		return {"error": "no user logged in"}, 401
 
 	data = request.get_json()
 	print(data)
 	session_uuid = data["session_uuid"]
-	user_id = session.get("user_id")
+	user_id = app_state["user_id"]
+	print(f"user id: {user_id}")
 	start_session(session_uuid, user_id)
 	return {"status": "ok"}, 200
 
@@ -144,6 +151,7 @@ def receive_data_from_esp():
 	print(data)
 	return {"status": "ok"}, 200
 
+
 @app.route("/end_session", methods=["POST"])
 def end_session_endpoint():
 	"""
@@ -155,6 +163,18 @@ def end_session_endpoint():
 	print(data)
 	end_session(data["session_uuid"])
 	return {"status": "ok"}, 200
+
+
+@app.route("/current_user", methods=["GET"])
+def current_user():
+	"""
+	Endpoint for at sende information om den nuværende user til esp.
+	:return: 200 hvis user er logget ind ellers 401.
+	"""
+	print(f"current user: {app_state["user_id"]}")
+	if app_state["user_id"] is None:
+		return {"error": "no user logged in"}, 401
+	return {"user_id": app_state["user_id"]}, 200
 
 # ===============================================================
 #			End of ESP communication and data retrieval
