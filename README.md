@@ -18,7 +18,7 @@ cd IoT_34315
 ### 2. Opret virtuelt miljø
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 ```
 
 ### 3. Aktivér miljøet
