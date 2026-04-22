@@ -14,6 +14,7 @@ const char* WIFI_SSID = "<wifi name>";				    // update ssid
 const char* WIFI_PASSWORD = "<wifi password>";			// update pw
 const char* SERVER_BASE_URL = "http://<...ip...:5050";	// update ip
 
+
 const int SECOND_IN_MILLIS = 1000;
 
 // data sending consts and variables
@@ -23,6 +24,7 @@ unsigned long last_tcp_message_send_time = millis();
 
 // session variables
 bool session_in_progress = false;
+float max_distance = 0.0;
 String session_uuid = "";
 
 // user consts and variables
@@ -30,25 +32,41 @@ bool user_logged_in = false;
 const unsigned long POLL_INTERVAL = 5 * SECOND_IN_MILLIS;  // poll hvert 5. sekund
 unsigned long last_poll_time = 0;
 
+// OLed display
+SH1106Wire display(0x3c, 21, 22); // I2C adresse, SDA, SCL
+
+void updateDisplay(String tekst, int size = 10);
 
 void setup() {
-  Serial.begin(115200);
+    Serial.begin(115200);
 
-  Serial.print("Forbinder til WiFi");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nForbundet! IP: " + WiFi.localIP().toString());
+    Serial.print("Forbinder til WiFi");
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("\nForbundet! IP: " + WiFi.localIP().toString());
 
-  pinMode(START_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(START_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
+
+    display.init();
+    display.setFont(ArialMT_Plain_24);
+    display.drawString(0, 0, "Hej verden!");
+    display.display();
 }
 
 void loop() {
 
-    pollUserStatus();
+    pollUserStatus(); // Checks if a user is logged in.
+
+    if (!session_in_progress)
+        if (!user_logged_in) {
+            updateDisplay("no one logged in");
+        } else {
+            updateDisplay("user is logged in\n ready to start");
+        }
 
     // Start button
     if (digitalRead(START_BUTTON_PIN) == LOW && not session_in_progress) {
@@ -57,9 +75,11 @@ void loop() {
             session_in_progress = true;
             Serial.print("Starting session with uuid: ");
             Serial.println(session_uuid);
+            updateDisplay("Starting session");
         }
         else {
             Serial.println("display.write : 'Log ind';");
+            updateDisplay("Log in!");
         }
     }
 
@@ -70,13 +90,16 @@ void loop() {
         bool result = stopSession(session_uuid);
         session_in_progress = !result;  // updatere session state ud fra return af stop_session.
                                         // TODO: find ud af om det er hensigtsmessigt..
-
     }
 
     if (session_in_progress == true && (millis() - TCP_MESSAGE_INTERVAL) > last_tcp_message_send_time) {
 
         last_tcp_message_send_time = millis();
+
+        // TODO: følgende skal til outer scope!
         float distance = (float)rand() / RAND_MAX * 10.0f;  // tof.readDistance();
+        max_distance = max(distance, max_distance);
+        updateDisplay("Session in prograss\nDistance: " + String(distance, 2) + "\n\nMax distance: " + String(max_distance, 2));
 
         if (isnan(distance)) {
             Serial.println("Fejl: Kunne ikke læse ... sensor!");
@@ -139,10 +162,12 @@ bool startSession(String uuid) {
     http.end();
 
     if (httpCode == 200) {
+        updateDisplay("User logget ind");
         // display.print("Logget ind!");
         return true;
     } else {
-        // display.print("Log ind!");  // 401
+        updateDisplay("Log ind først");
+        // display.print("Log ind først");  // 401
         return false;
     }
 }
@@ -174,10 +199,8 @@ bool stopSession(String uuid) {
     http.end();
 
     if (httpCode == 200) {
-        // display.print("Logget ind!");
         return true;
     } else {
-        // display.print("Log ind!");  // 401
         return false;
     }
 }
@@ -203,4 +226,21 @@ void pollUserStatus() {
         Serial.println("Ingen bruger logget ind");
     }
     http.end();
+}
+
+void updateDisplay(String tekst, int fontsize) {
+    // vi kan generere egne fonts her:
+    //  https://oleddisplay.squix.ch/
+    display.clear();
+    if (fontsize >= 24) {
+        display.setFont(ArialMT_Plain_24);
+    }
+    else if (fontsize >= 16) {
+        display.setFont(ArialMT_Plain_16);
+    }
+    else {
+        display.setFont(ArialMT_Plain_10);
+    }
+    display.drawString(0, 0, tekst);
+    display.display();
 }
