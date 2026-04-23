@@ -1,10 +1,208 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session details</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Courier New", monospace;
+            background: #f7931a;
+        }
+
+        .page-wrapper {
+            padding: 40px 20px;
+        }
+
+        .main-card {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #e8e3da;
+            border-radius: 28px;
+            overflow: hidden;
+        }
+
+        /* ---------- HEADER ---------- */
+        .top-bar {
+            background: #e2ddd5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 28px 36px;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            height: 70px;
+        }
+
+        .brand {
+            font-size: 2.8rem;
+        }
+
+        .tagline {
+            margin-left: 10px;
+            color: #666;
+        }
+
+        .top-btn {
+            padding: 12px 28px;
+            border-radius: 16px;
+            border: 1px solid #aaa;
+            background: #eee;
+            cursor: pointer;
+        }
+
+        /* ---------- CONTENT ---------- */
+        .content {
+            padding: 40px;
+        }
+
+        .back-btn {
+            margin-bottom: 25px;
+        }
+
+        .back-btn button {
+            padding: 14px 28px;
+            border-radius: 16px;
+            border: 1px solid #aaa;
+            background: #eee;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* ---------- SESSION CARD ---------- */
+        .session-card {
+            background: #f3f3f3;
+            border-radius: 28px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .session-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .divider {
+            height: 2px;
+            background: #bbb;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+
+        /* ---------- GRAPH ---------- */
+        .graph-card {
+            background: #f3f3f3;
+            border-radius: 28px;
+            padding: 30px;
+        }
+
+        .graph-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .graph {
+            width: 100%;
+            height: 300px;
+            background: #ddd;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+    </style>
 </head>
+
 <body>
-    <p>Forestil dig nogle session details her, og en graf med data fra træningssessionen..</p>
+<div class="page-wrapper">
+    <div class="main-card">
+
+        <!-- HEADER -->
+        <div class="top-bar">
+            <div class="top-left">
+                <img src="{{ url_for('static', filename='images/small_Genstraek_logo.png') }}" class="logo">
+                <div class="brand">GenStraek</div>
+                <div class="tagline">Track and improve your shoulder mobility</div>
+            </div>
+
+            <a href="{{ url_for('logout') }}">
+                <button class="top-btn">Log out</button>
+            </a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- BACK -->
+            <div class="back-btn">
+                <a href="{{ url_for('view_users_sessions', user_id=user_id) }}">
+                    <button>Go back</button>
+                </a>
+            </div>
+
+            <!-- SESSION SUMMARY -->
+            <div class="session-card">
+                <div class="session-title">
+                    Session {{ session.start_time }}
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="info-row">
+                    <img src="{{ url_for('static', filename='images/small_Progression.png') }}" class="icon">
+                    Max distance: {{ session.max_distance }} cm
+                </div>
+
+                {% if session.end_time %}
+                <div class="info-row">
+                    <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">
+                    Duration: {{ session.duration }} min
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- GRAPH -->
+            <div class="graph-card">
+                <div class="graph-title">Session data</div>
+
+                <div class="graph">
+                    <!-- Placeholder -->
+                    Replace with real graph later
+                </div>
+
+                <!-- Raw data (temporary) -->
+                {% for datapoint in session_data %}
+                    <p>Distance: {{ datapoint.distance }} | Time: {{ datapoint.timestamp }}</p>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+</div>
 </body>
 </html>

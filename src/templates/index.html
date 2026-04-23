@@ -3,44 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>our top fancy Dashboard</title>
+    <title>Dashboard - GenStraek</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Courier New", Courier, monospace;
+            background: #f7931a;
+            min-height: 100vh;
+        }
+
+        .page-wrapper {
+            padding: 40px 20px;
+        }
+
+        .main-card {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #e8e3da;
+            border-radius: 28px;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: #e2ddd5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 28px 36px;
+            flex-wrap: wrap;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .logo img {
+            height: 78px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand {
+            font-size: 3.2rem;
+            color: #000;
+            font-weight: 500;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #666;
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .top-actions a {
+            text-decoration: none;
+        }
+
+        .top-btn {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 16px 34px;
+            border-radius: 18px;
+            border: 1px solid #b9b9b9;
+            background: #efefef;
+            color: #111;
+            cursor: pointer;
+        }
+
+        .top-btn:hover {
+            filter: brightness(0.98);
+        }
+
+        .content {
+            padding: 52px 42px 52px 42px;
+        }
+
+        .welcome-title {
+            font-size: 2.6rem;
+            font-weight: 500;
+            color: #000;
+            margin-bottom: 34px;
+        }
+
+        .welcome-title strong {
+            font-weight: 700;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 70px;
+            flex-wrap: wrap;
+            margin-bottom: 85px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 260px;
+        }
+
+        .stat-icon {
+            width: 74px;
+            height: 74px;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .stat-text {
+            font-size: 1.15rem;
+            color: #111;
+            line-height: 1.35;
+        }
+
+        .stat-text .label {
+            font-size: 1.2rem;
+        }
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            color: #000;
+        }
+
+        .progress-card {
+            background: #f3f3f3;
+            border-radius: 28px;
+            padding: 34px 34px 28px 34px;
+            display: flex;
+            gap: 38px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .chart-area {
+            flex: 1 1 700px;
+            min-width: 320px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .chart-label-x {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 6px;
+        }
+
+        .side-panel {
+            flex: 0 0 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 26px;
+            padding-right: 10px;
+        }
+
+        .metric-list {
+            font-size: 1.2rem;
+            color: #111;
+            line-height: 1.7;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 18px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        .primary-btn {
+            background: #f7931a;
+            color: white;
+            border: none;
+        }
+
+        .secondary-btn {
+            background: #efefef;
+            color: #777;
+            border: 1px solid #a9a9a9;
+        }
+
+        .primary-btn:hover,
+        .secondary-btn:hover,
+        .top-btn:hover {
+            filter: brightness(0.97);
+        }
+
+        @media (max-width: 1100px) {
+            .progress-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .side-panel {
+                flex: 1 1 auto;
+                padding-right: 0;
+            }
+
+            .tagline {
+                margin-left: 0;
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .brand {
+                font-size: 2.2rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stats-row {
+                gap: 28px;
+                margin-bottom: 55px;
+            }
+
+            .content {
+                padding: 34px 22px 34px 22px;
+            }
+
+            .top-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-<div>
-    {% if user and user_id %}
-        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
-        <a href="{{ url_for('login') }}"><button>Switch user</button></a>
-    {% else %}
-        <a href="{{ url_for('login') }}"><button>Login</button></a>
-    {% endif %}
-</div>
-{% if user %}
-    <h1>Welcome <i>{{ user }}</i> to our top fancy Dashboard</h1>
-{% else %}
-    <h1>Welcome <u>random user</u> to our top fancy Dashboard</h1>
-{% endif %}
+    <div class="page-wrapper">
+        <div class="main-card">
+            <div class="top-bar">
+                <div class="top-left">
+                    <div class="logo">
+                        <img src="{{ url_for('static', filename='images/small_Genstraek_logo.png') }}" alt="GenStraek logo">
+                    </div>
+                    <div class="brand">GenStraek</div>
+                    <div class="tagline">Track and improve your shoulder mobility</div>
+                </div>
 
-</h1>
-<pre>
---- sessions overview *er dette bare index.html?*  ---
-    <i> et overblik alle sessions' max distance</i>
+                <div class="top-actions">
+                    {% if user and user_id %}
+                        <a href="{{ url_for('logout') }}">
+                            <button class="top-btn">Log out</button>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}">
+                            <button class="top-btn">Log in</button>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
 
-   max
-   distance
-     ^                    *  *            tooltip:
-     |             *  * *      *            - max dist
-     | *       * *                          - timestamp
-     |    *  *                              - session duration ?
-     -----------------------------> time
-      ts ts ts ts ts ts ts ts ts ts
+            <div class="content">
+                {% if user %}
+                    <div class="welcome-title">Welcome back <strong>{{ user }}</strong>!</div>
+                {% else %}
+                    <div class="welcome-title">Welcome back <strong>random user</strong>!</div>
+                {% endif %}
 
-</pre>
-<div>
-    {% if user and user_id %}
-        <a href="{{ url_for('view_users_sessions', user_id=user_id) }}">
-            <button>See my sessions</button>
-        </a>
-    {% endif %}
-</div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <img
+                            class="stat-icon"
+                            src="{{ url_for('static', filename='images/small_Calender.png') }}"
+                            alt="Calendar icon"
+                        >
+                        <div class="stat-text">
+                            <div class="label">Last Session:</div>
+                            <div>18/04/26</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-item">
+                        <img
+                            class="stat-icon"
+                            src="{{ url_for('static', filename='images/small_Duration.png') }}"
+                            alt="Duration icon"
+                        >
+                        <div class="stat-text">
+                            <div class="label">Session Duration:</div>
+                            <div>28 minutes</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-item">
+                        <img
+                            class="stat-icon"
+                            src="{{ url_for('static', filename='images/small_Streak.png') }}"
+                            alt="Streak icon"
+                        >
+                        <div class="stat-text">
+                            <div class="label">Session Streak:</div>
+                            <div>6 days</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Progress overview</div>
+
+                <div class="progress-card">
+                    <div class="chart-area">
+                        <svg class="chart-svg" viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="70" y1="260" x2="620" y2="260" stroke="#d7d7d7" stroke-width="1"/>
+                            <line x1="70" y1="205" x2="620" y2="205" stroke="#d7d7d7" stroke-width="1"/>
+                            <line x1="70" y1="150" x2="620" y2="150" stroke="#d7d7d7" stroke-width="1"/>
+                            <line x1="70" y1="95" x2="620" y2="95" stroke="#d7d7d7" stroke-width="1"/>
+
+                            <line x1="65" y1="275" x2="625" y2="275" stroke="#a5a5a5" stroke-width="2"/>
+                            <line x1="70" y1="280" x2="70" y2="40" stroke="#a5a5a5" stroke-width="2"/>
+                            <polygon points="70,30 62,40 78,40" fill="#a5a5a5"/>
+
+                            <polygon points="70,230 170,195 275,152 380,126 485,90 605,42 605,275 70,275"
+                                     fill="#f3d9a7" opacity="0.45"/>
+
+                            <polyline points="70,230 170,195 275,152 380,126 485,90 605,42"
+                                      fill="none" stroke="#f57c00" stroke-width="3"/>
+
+                            <circle cx="170" cy="195" r="10" fill="#f7931a" stroke="#ffffff" stroke-width="1"/>
+                            <circle cx="275" cy="152" r="10" fill="#f7931a" stroke="#ffffff" stroke-width="1"/>
+                            <circle cx="380" cy="126" r="10" fill="#f7931a" stroke="#ffffff" stroke-width="1"/>
+                            <circle cx="485" cy="90" r="10" fill="#f7931a" stroke="#ffffff" stroke-width="1"/>
+                            <circle cx="605" cy="42" r="10" fill="#f7931a" stroke="#ffffff" stroke-width="1"/>
+
+                            <text x="28" y="165" transform="rotate(-90 28 165)" font-size="22" fill="#111">Distance</text>
+                        </svg>
+                        <div class="chart-label-x">Session</div>
+                    </div>
+
+                    <div class="side-panel">
+                        <div class="metric-list">
+                            <div>Max dist: 40 cm</div>
+                            <div>Total time: 243 min</div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <a href="#" class="primary-btn">Start new session</a>
+
+                            {% if user and user_id %}
+                                <a href="{{ url_for('view_users_sessions', user_id=user_id) }}" class="secondary-btn">
+                                    See past sessions
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('login') }}" class="secondary-btn">
+                                    See past sessions
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

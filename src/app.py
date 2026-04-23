@@ -1,23 +1,33 @@
 from flask import Flask, render_template, redirect, url_for, request, session
+from datetime import datetime
 from database import init_db, create_user, start_session, end_session,   \
                      get_session, insert_session_data, get_session_data, \
 					 get_all_users, login_user, get_users_sessions
 
-
 app = Flask(__name__)
 
 app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user sessions
+# i tilfælde af vi ikke vil have at user forbliver logget ind, så brug denne metode:
+#		import os
+#		app.secret_key = os.urandom(24)
 
+app_state = {"user_id": None}  # bruges så vi kan sende user til esp'en så den kan vide om der er en logget ind.
+
+@app.before_request
+def require_login():
+    allowed_routes = ["login", "login_create_user", "login_select", "static"]
+    if request.endpoint not in allowed_routes and "user_id" not in session:
+        return redirect(url_for("login"))
 
 @app.route("/")
 def index():
-	"""
+    """
 	Index page
 	:return: Hvis brugeren er logget ind, returneres index.html med username. Ellers returneres index.html uden bruger.
 	"""
-	user = session.get("username")
-	user_id = session.get("user_id")
-	return render_template("index.html", user=user, user_id=user_id)
+    user = session.get("username")
+    user_id = session.get("user_id")
+    return render_template("index.html", user=user, user_id=user_id)
 
 # ===============================================================
 #					Start of user endpoints
@@ -55,6 +65,8 @@ def login_select(user_id):
 	if username:
 		session["username"] = username
 		session["user_id"] = user_id
+		app_state["user_id"] = user_id
+
 	return redirect(url_for("index"))
 
 @app.route("/logout")
@@ -64,34 +76,134 @@ def logout():
 	:return: Sender brugeren tilbage til index siden.
 	"""
 	session.pop("username", None)
-	return redirect(url_for("index"))
+	app_state["user_id"] = None
+	return redirect(url_for("login"))
 
 # ===============================================================
 #					End of user endpoints
 # ===============================================================
 
+# ===============================================================
+#					Start of user sessions view
+# ===============================================================
+
+
 @app.route("/view_users_sessions/<int:user_id>")
 def view_users_sessions(user_id):
-	"""
-	Henter alle trænings sessions for den givne bruger.
-	:param user_id: user_id på brugeren der er logget ind.
-	:return: Alle sessions for den user med det givne id
-	"""
 	users_sessions = get_users_sessions(user_id)
-	return render_template("users_sessions.html", users_sessions=users_sessions)
+
+	# beregner og tilføjer duration af session ud fra start og slut tid.
+	sessions_with_duration = []
+	for s in users_sessions:
+		s = dict(s)
+		if s["end_time"]:
+			start = datetime.strptime(s["start_time"], "%Y-%m-%d %H:%M:%S")
+			end = datetime.strptime(s["end_time"], "%Y-%m-%d %H:%M:%S")
+			delta = end - start
+			minutes = delta.seconds // 60
+			seconds = delta.seconds % 60
+			s["duration"] = f"{minutes}m {seconds}s"
+		else:
+			s["duration"] = "Ikke afsluttet"
+		sessions_with_duration.append(s)
+
+	return render_template("users_sessions.html", users_sessions=sessions_with_duration)
 
 @app.route("/session_details/<session_uuid>")
 def session_details(session_uuid):
-	# TODO: implement some session specific view.
-	return render_template("session_details.html", session_uuid=session_uuid)
+	session_data = get_session_data(session_uuid)
+	user_id = session.get("user_id")
+	user = session.get("username")
+
+	session_info = None
+	if session_data:
+		first_point = dict(session_data[0])
+
+		start_time = first_point.get("timestamp")
+		max_distance = max(float(point["distance"]) for point in session_data)
+
+		session_info = {
+			"start_time": start_time,
+			"max_distance": round(max_distance, 1)
+		}
+
+	return render_template(
+		"session_details.html",
+		session_data=session_data,
+		session_info=session_info,
+		user_id=user_id,
+		user=user
+	)
+
+# ===============================================================
+#					End of user sessions view
+# ===============================================================
+
+# ===============================================================
+#			Start of ESP communication and data retrieval
+# ===============================================================
+
+@app.route("/start_session", methods=["POST"])
+def start_session_endpoint():
+	"""
+	Opretter en ny trænings session i databasen for den user der er logget ind
+	og med en nyt genereret sessions uuid fra esp controlleren.
+
+	:return: 200 hvis der er en user logget ind. Eller err 401 hvis der ikke er en nogen user logget ind.
+	"""
+	if app_state["user_id"] is None:
+		return {"error": "no user logged in"}, 401
+
+	data = request.get_json()
+	print(data)
+	session_uuid = data["session_uuid"]
+	user_id = app_state["user_id"]
+	print(f"user id: {user_id}")
+	start_session(session_uuid, user_id)
+	return {"status": "ok"}, 200
+
 
 @app.route("/data", methods=["POST"])
 def receive_data_from_esp():
-	# TODO: implement me..
-	pass
-	if "username" not in session:
-		return {"error": "no user logged in"}, 401  # sender err tilbage til esp der så skal stoppe logning.
-													# det er bare et forslag, ved ikke helt om det skal være sådan.
+	"""
+	Indsætter distance i den igangværende trænings session i databasen,
+	sessionen identificeres vha. session_uuid, som modtages fra esp'en.
+		TODO: bør tjekke at session_uuid faktisk findes i databasen.
+	:return: 200
+	"""
+	data = request.get_json()
+	insert_session_data(data["session_uuid"], data["distance"])
+	print(data)
+	return {"status": "ok"}, 200
+
+
+@app.route("/end_session", methods=["POST"])
+def end_session_endpoint():
+	"""
+	Afslutter en trænings session med sessions_uuid modtaget fra esp'en
+		TODO: bør tjekke at session_uuid faktisk findes i databasen.
+	:return: 200
+	"""
+	data = request.get_json()
+	print(data)
+	end_session(data["session_uuid"])
+	return {"status": "ok"}, 200
+
+
+@app.route("/current_user", methods=["GET"])
+def current_user():
+	"""
+	Endpoint for at sende information om den nuværende user til esp.
+	:return: 200 hvis user er logget ind ellers 401.
+	"""
+	#print(f"current user: {app_state["user_id"]}")
+	if app_state["user_id"] is None:
+		return {"error": "no user logged in"}, 401
+	return {"user_id": app_state["user_id"]}, 200
+
+# ===============================================================
+#			End of ESP communication and data retrieval
+# ===============================================================
 
 
 if __name__ == "__main__":
