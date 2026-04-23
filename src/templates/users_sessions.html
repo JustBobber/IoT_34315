@@ -1,23 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Here is all the sessions for user: ...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Sessions</title>
+
+    <style>
+        body {
+            font-family: "Courier New", monospace;
+            background: #f7931a;
+            margin: 0;
+        }
+
+        .wrapper {
+            padding: 20px;
+        }
+
+        .main-card {
+            background: #e8e3da;
+            border-radius: 28px;
+            overflow: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ---------- HEADER ---------- */
+        .top-bar {
+            background: #e2ddd5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 35px;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            height: 70px;
+        }
+
+        .brand {
+            font-size: 2.8rem;
+        }
+
+        .tagline {
+            margin-left: 10px;
+            color: #666;
+        }
+
+        .top-btn {
+            padding: 12px 25px;
+            border-radius: 16px;
+            border: 1px solid #aaa;
+            background: #eee;
+            cursor: pointer;
+        }
+
+        /* ---------- CONTENT ---------- */
+        .content {
+            padding: 30px;
+        }
+
+        .back-btn {
+            margin-bottom: 25px;
+        }
+
+        .back-btn a {
+            text-decoration: none;
+        }
+
+        .back-btn button {
+            padding: 14px 28px;
+            border-radius: 16px;
+            border: 1px solid #aaa;
+            background: #eee;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ---------- SESSION CARD ---------- */
+        .session-card {
+            display: block;
+            text-decoration: none;
+            color: black;
+            background: #f3f3f3;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transition: 0.15s;
+        }
+
+        .session-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .session-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .divider {
+            height: 2px;
+            background: #bbb;
+            margin-bottom: 20px;
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+        }
+
+        .icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .empty {
+            padding: 20px;
+        }
+    </style>
 </head>
+
 <body>
-{% for session in users_sessions %}
-    <a href="{{ url_for('session_details', session_uuid=session.session_uuid) }}" class="session-card">
-        <div>
-            <h2>Session d. {{ session.start_time }}</h2>
-            <p>Max Distance: {{ session.max_distance }}</p>
-            {% if session.end_time %}
-                <p>Duration: {{ session.duration }}</p>
-            {% endif %}
+<div class="wrapper">
+    <div class="main-card">
+
+        <!-- HEADER -->
+        <div class="top-bar">
+            <div class="top-left">
+                <img src="{{ url_for('static', filename='images/small_Genstraek_logo.png') }}" class="logo">
+                <div class="brand">GenStraek</div>
+                <div class="tagline">Track and improve your shoulder mobility</div>
+            </div>
+
+            <a href="{{ url_for('logout') }}">
+                <button class="top-btn">Log out</button>
+            </a>
         </div>
-    </a>
-{% else %}
-    <p>No sessions found for this user.</p>
-{% endfor %}
-<a href="{{ url_for('index') }}">← Tilbage</a>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <div class="back-btn">
+                <a href="{{ url_for('index') }}">
+                    <button>Go back</button>
+                </a>
+            </div>
+
+            {% for session in users_sessions %}
+                <a href="{{ url_for('session_details', session_uuid=session.session_uuid) }}" class="session-card">
+
+                    <div class="session-title">
+                        Session {{ session.start_time }}
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="session-info">
+                        <div class="info-row">
+                            <img src="{{ url_for('static', filename='images/small_Progression.png') }}" class="icon">
+                            Max distance: {{ session.max_distance }} cm
+                        </div>
+
+                        {% if session.end_time %}
+                        <div class="info-row">
+                            <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">
+                            Duration: {{ session.duration }} min
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </a>
+            {% else %}
+                <div class="empty">
+                    No sessions found for this user.
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
 </body>
 </html>
