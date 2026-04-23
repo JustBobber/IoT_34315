@@ -106,9 +106,29 @@ def view_users_sessions(user_id):
 
 @app.route("/session_details/<session_uuid>")
 def session_details(session_uuid):
-	# TODO: implement some session specific view.
 	session_data = get_session_data(session_uuid)
-	return render_template("session_details.html", session_data=session_data)
+	user_id = session.get("user_id")
+	user = session.get("username")
+
+	session_info = None
+	if session_data:
+		first_point = dict(session_data[0])
+
+		start_time = first_point.get("timestamp")
+		max_distance = max(float(point["distance"]) for point in session_data)
+
+		session_info = {
+			"start_time": start_time,
+			"max_distance": round(max_distance, 1)
+		}
+
+	return render_template(
+		"session_details.html",
+		session_data=session_data,
+		session_info=session_info,
+		user_id=user_id,
+		user=user
+	)
 
 # ===============================================================
 #					End of user sessions view
