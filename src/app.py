@@ -171,7 +171,7 @@ def current_user():
 	Endpoint for at sende information om den nuværende user til esp.
 	:return: 200 hvis user er logget ind ellers 401.
 	"""
-	print(f"current user: {app_state["user_id"]}")
+	#print(f"current user: {app_state["user_id"]}")
 	if app_state["user_id"] is None:
 		return {"error": "no user logged in"}, 401
 	return {"user_id": app_state["user_id"]}, 200
