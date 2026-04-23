@@ -38,6 +38,9 @@ def get_duration_sum(sessions):
     :return: Formateret string der angiver sessioners totale varighed i formatet "<timer> t <minutter> m <sekunder> s"
     """
     total_seconds = 0
+    if not sessions:
+        return None
+
     for s in sessions:
         if s["start_time"] and s["end_time"]:
             start = datetime.strptime(s["start_time"], "%Y-%m-%d %H:%M:%S")
@@ -50,11 +53,20 @@ def get_duration_sum(sessions):
     return f"{hours}t {minutes}m {seconds}s"
 
 
+def get_latest_date(sessions):
+    if not sessions:
+        return None
+    latest = max(sessions, key=lambda s: s["start_time"])
+    timestamp = datetime.strptime(latest["start_time"], "%Y-%m-%d %H:%M:%S")
+    return timestamp.strftime("%d/%m/%Y")
+
+
 @app.before_request
 def require_login():
     allowed_routes = ["login", "login_create_user", "login_select", "static"]
     if request.endpoint not in allowed_routes and "user_id" not in session:
         return redirect(url_for("login"))
+    return None
 
 
 @app.route("/")
@@ -66,15 +78,13 @@ def index():
     user = session.get("username")
     user_id = session.get("user_id")
     session_info = get_users_sessions(user_id)
-    max_distance = 0.0
-    print("___ session_info ___")
+    best_max_distance = 0.0
 
-    total_duration = 0
     session_info_with_durations = []
     for s in session_info:
         s = dict(s)
-        if s["max_distance"] and s["max_distance"] > max_distance:
-            max_distance = s["max_distance"]
+        if s["max_distance"] and s["max_distance"] > best_max_distance:
+            best_max_distance = s["max_distance"]
 
         if s["end_time"]:
             duration = calculate_duration(s["start_time"], s["end_time"])
@@ -83,13 +93,22 @@ def index():
         s["duration"] = duration
         session_info_with_durations.append(s)
 
+    total_duration = get_duration_sum(session_info) if session_info else "0"
+    latest_session_date = get_latest_date(session_info) if session_info else "No sessions yet"
+    sessions_count = len(session_info) if session_info else 0
 
-    sessions_overview = {"best_max_distance": max_distance, "total_duration": 123}
+    sessions_overview = {"best_max_distance": best_max_distance
+                         , "total_duration": total_duration
+                         , "latest_session_date": latest_session_date
+                         , "sessions_count": sessions_count}
 
-    # TODO: tiløj summeret total tid  og bedste max distance.
-    # TODO: tilføj latest session ts og duration - til session_info
-    # TODO: for hver max skal der være en duration til sessions_overview
-    return render_template("index.html", user=user, user_id=user_id, session_info=session_info_with_durations)
+    # TODO: få fat i last session duration..
+
+    return render_template("index.html"
+                           , user=user
+                           , user_id=user_id
+                           , sessions_data=session_info_with_durations
+                           , sessions_overview=sessions_overview)
 
 
 # ===============================================================

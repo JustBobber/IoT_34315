@@ -310,7 +310,7 @@
                         >
                         <div class="stat-text">
                             <div class="label">Last Session:</div>
-                            <div>18/04/26</div>
+                            <div>{{ sessions_overview.latest_session_date }} </div>
                         </div>
                     </div>
 
@@ -322,7 +322,7 @@
                         >
                         <div class="stat-text">
                             <div class="label">Session Duration:</div>
-                            <div>28 minutes</div>
+                            <div>28 minutes .. <br>TODO: fix me!</div>
                         </div>
                     </div>
 
@@ -333,8 +333,8 @@
                             alt="Streak icon"
                         >
                         <div class="stat-text">
-                            <div class="label">Session Streak:</div>
-                            <div>6 days</div>
+                            <div class="label">Session Count:</div>
+                            <div>{{ sessions_overview.sessions_count }}</div>
                         </div>
                     </div>
                 </div>
@@ -372,8 +372,8 @@
 
                     <div class="side-panel">
                         <div class="metric-list">
-                            <div>Max dist: 40 cm</div>
-                            <div>Total time: 243 min</div>
+                            <div>Max dist: {{ sessions_overview.best_max_distance }}</div>
+                            <div>Total time: {{ sessions_overview.total_duration }}</div>
                         </div>
 
                             <div class="action-buttons">
@@ -391,7 +391,7 @@
                             </div>
                         <div>
                             <!-- data der skal bruges til graf -->
-                            {% for session in session_info %}
+                            {% for session in sessions_data %}
                                 <p>Max distance: {{ session.max_distance }} | Duration: {{ session.duration }}</p>
                             {% endfor %}
                         </div>
