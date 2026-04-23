@@ -2,11 +2,11 @@ from PIL import Image
 from pathlib import Path
 
 files = {
-    "Calender.png": 64,
-    "Duration.png": 64,
-    "Streak.png": 64,
+    #"Calender.png": 64,
+    #"Duration.png": 64,
+    #"Streak.png": 64,
     "Progression.png": 64,
-    "Genstraek_logo.png": 140
+    #"Genstraek_logo.png": 140
 }
 
 base_path = Path(__file__).parent
