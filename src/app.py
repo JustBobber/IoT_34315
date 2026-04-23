@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from datetime import datetime
-from database import init_db, create_user, start_session, end_session,   \
-                     get_session, insert_session_data, get_session_data, \
-                     get_all_users, login_user, get_users_sessions
+from database import init_db, create_user, start_session, end_session, \
+    get_session, insert_session_data, get_session_data, \
+    get_all_users, login_user, get_users_sessions
 
 app = Flask(__name__)
 
@@ -13,20 +13,23 @@ app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user 
 
 app_state = {"user_id": None}  # bruges så vi kan sende user til esp'en så den kan vide om der er en logget ind.
 
-def calculate_duration(start_time, end_time):
-	start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-	end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
-	delta = end - start
-	minutes = delta.seconds // 60
-	seconds = delta.seconds % 60
 
-	return f"{minutes}m {seconds}s"
+def calculate_duration(start_time, end_time):
+    start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+    end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+    delta = end - start
+    minutes = delta.seconds // 60
+    seconds = delta.seconds % 60
+
+    return f"{minutes}m {seconds}s"
+
 
 @app.before_request
 def require_login():
     allowed_routes = ["login", "login_create_user", "login_select", "static"]
     if request.endpoint not in allowed_routes and "user_id" not in session:
         return redirect(url_for("login"))
+
 
 @app.route("/")
 def index():
@@ -37,16 +40,31 @@ def index():
     user = session.get("username")
     user_id = session.get("user_id")
     session_info = get_users_sessions(user_id)
-    # max_duration =
+    max_distance = 0.0
     print("___ session_info ___")
 
+    total_duration = 0
+    session_info_with_durations = []
     for s in session_info:
         s = dict(s)
-        print(s["max_distance"])
+        if s["max_distance"] and s["max_distance"] > max_distance:
+            max_distance = s["max_distance"]
+
+        if s["end_time"]:
+            duration = calculate_duration(s["start_time"], s["end_time"])
+        else:
+            duration = "Not ended"
+        s["duration"] = duration
+        session_info_with_durations.append(s)
+
+
+    sessions_overview = {"best_max_distance": max_distance, "total_duration": 123}
+
     # TODO: tiløj summeret total tid  og bedste max distance.
-	# TODO: tilføj latest session ts og duration.
-	# TODO: for hver max skal der være en duration.
-    return render_template("index.html", user=user, user_id=user_id, session_info=session_info)
+    # TODO: tilføj latest session ts og duration - til session_info
+    # TODO: for hver max skal der være en duration til sessions_overview
+    return render_template("index.html", user=user, user_id=user_id, session_info=session_info_with_durations)
+
 
 # ===============================================================
 #					Start of user endpoints
@@ -62,6 +80,7 @@ def login():
     users = get_all_users()
     return render_template("login.html", users=users)
 
+
 @app.route("/login/create", methods=["POST"])
 def login_create_user():
     """
@@ -72,6 +91,7 @@ def login_create_user():
     if username:
         create_user(username)
     return redirect(url_for("login"))
+
 
 @app.route("/login/select/<int:user_id>")
 def login_select(user_id):
@@ -88,6 +108,7 @@ def login_select(user_id):
 
     return redirect(url_for("index"))
 
+
 @app.route("/logout")
 def logout():
     """
@@ -97,6 +118,7 @@ def logout():
     session.pop("username", None)
     app_state["user_id"] = None
     return redirect(url_for("login"))
+
 
 # ===============================================================
 #					End of user endpoints
@@ -122,6 +144,7 @@ def view_users_sessions(user_id):
         sessions_with_duration.append(s)
 
     return render_template("users_sessions.html", users_sessions=sessions_with_duration)
+
 
 @app.route("/session_details/<session_uuid>")
 def session_details(session_uuid):
@@ -149,6 +172,7 @@ def session_details(session_uuid):
         user=user
     )
 
+
 # ===============================================================
 #					End of user sessions view
 # ===============================================================
@@ -169,10 +193,8 @@ def start_session_endpoint():
         return {"error": "no user logged in"}, 401
 
     data = request.get_json()
-    print(data)
     session_uuid = data["session_uuid"]
     user_id = app_state["user_id"]
-    print(f"user id: {user_id}")
     start_session(session_uuid, user_id)
     return {"status": "ok"}, 200
 
@@ -187,7 +209,6 @@ def receive_data_from_esp():
     """
     data = request.get_json()
     insert_session_data(data["session_uuid"], data["distance"])
-    print(data)
     return {"status": "ok"}, 200
 
 
@@ -199,7 +220,6 @@ def end_session_endpoint():
     :return: 200
     """
     data = request.get_json()
-    print(data)
     end_session(data["session_uuid"])
     return {"status": "ok"}, 200
 
@@ -214,6 +234,7 @@ def current_user():
     if app_state["user_id"] is None:
         return {"error": "no user logged in"}, 401
     return {"user_id": app_state["user_id"]}, 200
+
 
 # ===============================================================
 #			End of ESP communication and data retrieval
