@@ -13,16 +13,21 @@ app.secret_key = "super hemmelig key"  # skal være der for at kunne køre user 
 
 app_state = {"user_id": None}  # bruges så vi kan sende user til esp'en så den kan vide om der er en logget ind.
 
+@app.before_request
+def require_login():
+    allowed_routes = ["login", "login_create_user", "login_select", "static"]
+    if request.endpoint not in allowed_routes and "user_id" not in session:
+        return redirect(url_for("login"))
 
 @app.route("/")
 def index():
-	"""
+    """
 	Index page
 	:return: Hvis brugeren er logget ind, returneres index.html med username. Ellers returneres index.html uden bruger.
 	"""
-	user = session.get("username")
-	user_id = session.get("user_id")
-	return render_template("index.html", user=user, user_id=user_id)
+    user = session.get("username")
+    user_id = session.get("user_id")
+    return render_template("index.html", user=user, user_id=user_id)
 
 # ===============================================================
 #					Start of user endpoints
@@ -72,7 +77,7 @@ def logout():
 	"""
 	session.pop("username", None)
 	app_state["user_id"] = None
-	return redirect(url_for("index"))
+	return redirect(url_for("login"))
 
 # ===============================================================
 #					End of user endpoints
