@@ -376,18 +376,24 @@
                             <div>Total time: 243 min</div>
                         </div>
 
-                        <div class="action-buttons">
-                            <a href="#" class="primary-btn">Start new session</a>
+                            <div class="action-buttons">
+                                <a href="#" class="primary-btn">Start new session</a>
 
-                            {% if user and user_id %}
-                                <a href="{{ url_for('view_users_sessions', user_id=user_id) }}" class="secondary-btn">
-                                    See past sessions
-                                </a>
-                            {% else %}
-                                <a href="{{ url_for('login') }}" class="secondary-btn">
-                                    See past sessions
-                                </a>
-                            {% endif %}
+                                {% if user and user_id %}
+                                    <a href="{{ url_for('view_users_sessions', user_id=user_id) }}" class="secondary-btn">
+                                        See past sessions
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('login') }}" class="secondary-btn">
+                                        See past sessions
+                                    </a>
+                                {% endif %}
+                            </div>
+                        <div>
+                            <!-- data der skal bruges til graf -->
+                            {% for session in session_info %}
+                                <p>Max distance: {{ session.max_distance }} | Time: {{ session.start_time }}</p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
