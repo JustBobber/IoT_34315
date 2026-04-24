@@ -183,6 +183,9 @@ def view_users_sessions(user_id):
             s["duration"] = calculate_duration(s["start_time"], s["end_time"])
         else:
             s["duration"] = "Ikke afsluttet"
+        if s["average_difficulty"]:
+            s["average_difficulty"] = round(s["average_difficulty"], 1)
+
         sessions_with_duration.append(s)
     sessions_with_duration.reverse()
     return render_template("users_sessions.html", users_sessions=sessions_with_duration)
