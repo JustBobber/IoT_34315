@@ -5,12 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+    <style>
+        /* ── Chart specific ── */
+        .chart-area {
+            flex: 1 1 700px;
+            min-width: 320px;
+            position: relative;
+        }
 
+        #sessionChart {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+        }
+
+        /* ── Tooltip ── */
+        #chartTooltip {
+            position: fixed;
+            background: #1a1a1a;
+            color: #f5f5f5;
+            font-family: "Courier New", monospace;
+            font-size: 0.85rem;
+            padding: 10px 14px;
+            border-radius: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            z-index: 100;
+            line-height: 1.6;
+            white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+
+        #chartTooltip.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
 <body>
 <div class="page-wrapper">
     <div class="main-card">
-
         <!-- HEADER -->
         <div class="top-bar">
             <div class="top-left">
@@ -18,71 +53,66 @@
                 <div class="brand">GenStraek</div>
                 <div class="tagline">Track and improve your shoulder mobility</div>
             </div>
-
             <a href="{{ url_for('logout') }}">
                 <button class="top-btn">Log out</button>
             </a>
         </div>
-
         <!-- CONTENT -->
         <div class="content">
-
             <!-- BACK -->
             <div class="back-btn">
                 <a href="{{ url_for('view_users_sessions', user_id=user_id) }}">
                     <button>Go back</button>
                 </a>
             </div>
-
             <!-- SESSION SUMMARY -->
             <div class="session-card">
                 <div class="session-title">
                     Session {{ session_info.start_time }}
                 </div>
-
                 <div class="divider"></div>
-
                 <div class="info-row">
                     <img src="{{ url_for('static', filename='images/small_Progression.png') }}" class="icon">
                     Max distance: {{ session_info.max_distance }} cm
                 </div>
-
                 {% if session_info.duration %}
                 <div class="info-row">
                     <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">
                     Duration: {{ session_info.duration }} min
                 </div>
                 {% endif %}
-
                 {% if session_info.average_difficulty %}
                 <div class="info-row">
-<!--                    <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">-->
-                    TODO: add 'Strong arm img'.
                     Average difficulty: {{ session_info.average_difficulty }}
                 </div>
                 {% endif %}
             </div>
-
             <!-- GRAPH -->
             <div class="graph-card">
                 <div class="graph-title">Session data</div>
+                <div class="graph" style="position: relative;">
+                    <canvas id="sessionChart" style="width:100%; max-width:700px;"></canvas>
+                    <div id="chartTooltip">
 
-                <div class="graph">
-                    <!-- Placeholder -->
-                    Replace with real graph later
+                    </div>
                 </div>
-
-                <!-- Raw data (temporary) -->
-                {% for datapoint in session_data %}
-                    <p>Distance: {{ datapoint.distance }}</p>
-                    <p>Difficulty: {{ datapoint.difficulty }}</p>
-                    <p>Time: {{ datapoint.timestamp }}</p>
-                    <p>---</p>
-                {% endfor %}
             </div>
-
         </div>
     </div>
 </div>
+
+<!-- Inject session datapoints from Jinja into JS -->
+<script>
+    const sessionData = [
+        {% for datapoint in session_data %}
+        {
+            max_distance: {{ datapoint.distance | float }},
+            avg_difficulty: {{ datapoint.difficulty | float if datapoint.difficulty else 0 }},
+            start_time: {{ datapoint.timestamp | tojson }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+<script src="{{ url_for('static', filename='js/sessionChart.js') }}"></script>
 </body>
 </html>
