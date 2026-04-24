@@ -1,0 +1,590 @@
+/* ============================================================
+   GenStraek – Shared Stylesheet
+   Link this in all templates:
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/genstraek.css') }}">
+   ============================================================ */
+
+/* ---------- RESET ---------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ---------- BASE ---------- */
+body {
+    font-family: "Courier New", Courier, monospace;
+    background: #f7931a;
+    min-height: 100vh;
+}
+
+/* ---------- LAYOUT ---------- */
+.page-wrapper {
+    padding: 40px 20px;
+}
+
+.wrapper {
+    padding: 20px;
+}
+
+.main-card {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #e8e3da;
+    border-radius: 28px;
+    overflow: hidden;
+}
+
+/* ---------- TOP BAR ---------- */
+.top-bar {
+    background: #e2ddd5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 36px;
+    flex-wrap: wrap;
+}
+
+.top-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+}
+
+.logo img,
+img.logo {
+    height: 72px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.brand {
+    font-size: 3.2rem;
+    color: #000;
+    font-weight: 500;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    color: #666;
+    margin-left: 12px;
+    white-space: nowrap;
+}
+
+.top-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.top-actions a {
+    text-decoration: none;
+}
+
+/* ---------- BUTTONS ---------- */
+.top-btn {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 16px 34px;
+    border-radius: 18px;
+    border: 1px solid #b9b9b9;
+    background: #efefef;
+    color: #111;
+    cursor: pointer;
+}
+
+.top-btn:hover {
+    filter: brightness(0.98);
+}
+
+.primary-btn,
+.secondary-btn {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 18px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.primary-btn {
+    background: #f7931a;
+    color: white;
+    border: none;
+}
+
+.secondary-btn {
+    background: #efefef;
+    color: #777;
+    border: 1px solid #a9a9a9;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover {
+    filter: brightness(0.97);
+}
+
+/* ---------- CONTENT AREA ---------- */
+.content {
+    padding: 52px 42px;
+}
+
+/* ---------- HEADINGS ---------- */
+.welcome-title {
+    font-size: 2.6rem;
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 34px;
+}
+
+.welcome-title strong {
+    font-weight: 700;
+}
+
+.section-title {
+    font-size: 2.4rem;
+    font-weight: 500;
+    margin-bottom: 30px;
+    color: #000;
+}
+
+h1, h2 {
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 26px;
+}
+
+h1 { font-size: 2.1rem; }
+
+h2 {
+    font-size: 2rem;
+    margin-top: 70px;
+}
+
+/* ---------- STATS ROW (index) ---------- */
+.stats-row {
+    display: flex;
+    gap: 70px;
+    flex-wrap: wrap;
+    margin-bottom: 85px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 260px;
+}
+
+.stat-icon {
+    width: 74px;
+    height: 74px;
+    flex-shrink: 0;
+    object-fit: contain;
+    display: block;
+}
+
+.stat-text {
+    font-size: 1.15rem;
+    color: #111;
+    line-height: 1.35;
+}
+
+.stat-text .label {
+    font-size: 1.2rem;
+}
+
+/* ---------- PROGRESS CARD (index) ---------- */
+.progress-card {
+    background: #f3f3f3;
+    border-radius: 28px;
+    padding: 34px 34px 28px 34px;
+    display: flex;
+    gap: 38px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.chart-area {
+    flex: 1 1 700px;
+    min-width: 320px;
+}
+
+.chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.chart-label-x {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-top: 6px;
+}
+
+.side-panel {
+    flex: 0 0 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    padding-right: 10px;
+}
+
+.metric-list {
+    font-size: 1.2rem;
+    color: #111;
+    line-height: 1.7;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ---------- LOGIN PAGE ---------- */
+.left-section {
+    flex: 1 1 700px;
+    min-width: 320px;
+}
+
+.right-section {
+    flex: 0 0 420px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.user-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 34px;
+    list-style: none;
+    margin-bottom: 30px;
+}
+
+.user-card {
+    background: #f4f4f4;
+    border-radius: 22px;
+    width: 320px;
+    min-height: 255px;
+    padding: 28px 24px;
+    text-align: center;
+    transition: transform 0.15s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-3px);
+}
+
+.user-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.avatar {
+    width: 108px;
+    height: 108px;
+    background: #bdbdbd;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.avatar::before {
+    content: "";
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: #232832;
+    border-radius: 50%;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.avatar::after {
+    content: "";
+    position: absolute;
+    width: 74px;
+    height: 34px;
+    background: #232832;
+    border-radius: 50% 50% 45% 45%;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.username {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.last-session {
+    font-size: 0.95rem;
+    color: #222;
+}
+
+.empty-users {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.create-box {
+    background: #f4f4f4;
+    border-radius: 22px;
+    padding: 24px 18px 28px 18px;
+    max-width: 700px;
+}
+
+.create-title {
+    font-size: 1.2rem;
+    margin-bottom: 18px;
+}
+
+.create-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.create-form input {
+    flex: 1 1 380px;
+    height: 60px;
+    border: 1px solid #bbb;
+    border-radius: 18px;
+    padding: 0 20px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: #f9f9f9;
+}
+
+.create-form button {
+    height: 60px;
+    padding: 0 34px;
+    border: none;
+    border-radius: 18px;
+    background: #f7931a;
+    color: white;
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.create-form button:hover {
+    filter: brightness(0.96);
+}
+
+.product-box {
+    width: 100%;
+    max-width: 520px;
+    height: 650px;
+    background: #7f7f7f;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f0f0f0;
+    font-size: 2rem;
+    text-align: center;
+    padding: 20px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 28px;
+    text-decoration: none;
+    color: #000;
+    font-size: 1rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------- SESSION CARDS (users_sessions / session_details) ---------- */
+.session-card {
+    display: block;
+    text-decoration: none;
+    color: black;
+    background: #f3f3f3;
+    border-radius: 24px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s;
+}
+
+.session-card:hover {
+    transform: translateY(-3px);
+}
+
+.session-title {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.divider {
+    height: 2px;
+    background: #bbb;
+    margin-bottom: 20px;
+}
+
+.session-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.empty {
+    padding: 20px;
+}
+
+/* ---------- BACK BUTTON ---------- */
+.back-btn {
+    margin-bottom: 25px;
+}
+
+.back-btn a {
+    text-decoration: none;
+}
+
+.back-btn button {
+    padding: 14px 28px;
+    border-radius: 16px;
+    border: 1px solid #aaa;
+    background: #eee;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* ---------- GRAPH CARD (session_details) ---------- */
+.graph-card {
+    background: #f3f3f3;
+    border-radius: 28px;
+    padding: 30px;
+}
+
+.graph-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.graph {
+    width: 100%;
+    height: 300px;
+    background: #ddd;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+    .progress-card,
+    .content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .side-panel {
+        flex: 1 1 auto;
+        padding-right: 0;
+    }
+
+    .right-section {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+    }
+
+    .product-box {
+        height: 420px;
+        max-width: 700px;
+    }
+
+    .tagline {
+        margin-left: 0;
+        white-space: normal;
+    }
+}
+
+@media (max-width: 700px) {
+    .brand {
+        font-size: 2.2rem;
+    }
+
+    .welcome-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .stats-row {
+        gap: 28px;
+        margin-bottom: 55px;
+    }
+
+    .content {
+        padding: 34px 22px;
+    }
+
+    .top-btn {
+        width: 100%;
+    }
+
+    h1, h2 {
+        font-size: 1.7rem;
+    }
+
+    .tagline {
+        font-size: 0.95rem;
+        white-space: normal;
+    }
+
+    .user-card {
+        width: 100%;
+    }
+
+    .create-form {
+        flex-direction: column;
+    }
+
+    .create-form input,
+    .create-form button {
+        width: 100%;
+    }
+}
