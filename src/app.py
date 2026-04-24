@@ -197,7 +197,7 @@ def session_details(session_uuid):
                   , "duration": calculate_duration(session_overview["start_time"], session_overview["end_time"])
                                             if session_overview and session_overview["start_time"] else "N/A"
                   , "max_distance": round(session_overview["max_distance"], 2)
-                  , "average_difficulty": session_overview["average_difficulty"] if session_overview
+                  , "average_difficulty":  round(session_overview["average_difficulty"], 1) if session_overview
                                             and session_overview["average_difficulty"] else "N/A"
     }
 

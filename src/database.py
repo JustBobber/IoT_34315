@@ -87,7 +87,7 @@ def insert_session_data(session_uuid, distance, difficulty):
         conn.execute(
             """INSERT INTO session_data (session_uuid, distance, difficulty)
                VALUES (?, ?, ?)""",
-            (session_uuid, distance, difficulty)
+            (session_uuid, distance, int(round(difficulty)))
         )
         conn.execute(
             """UPDATE sessions SET

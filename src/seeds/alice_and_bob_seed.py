@@ -70,14 +70,14 @@ def seed():
                     max(d_min_start, min(d_max_end, session_base + random.uniform(-0.5, 0.5))),
                     1
                 )
-                difficulties.append(difficulty)
+                difficulties.append(int(round(difficulty)))
                 timestamp = (start_time + timedelta(seconds=i * 10)).strftime("%Y-%m-%d %H:%M:%S")
                 conn.execute(
                     "INSERT INTO session_data (session_uuid, distance, difficulty, timestamp) VALUES (?, ?, ?, ?)",
-                    (session_uuid, distance, difficulty, timestamp)
+                    (session_uuid, distance, int(round(difficulty)), timestamp)
                 )
 
-            average_difficulty = round(sum(difficulties) / len(difficulties), 2)
+            average_difficulty = round(sum(difficulties) / len(difficulties), 1)
             conn.execute(
                 "UPDATE sessions SET max_distance = ?, average_difficulty = ? WHERE session_uuid = ?",
                 (max_distance, average_difficulty, session_uuid)
