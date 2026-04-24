@@ -322,7 +322,7 @@
                         >
                         <div class="stat-text">
                             <div class="label">Session Duration:</div>
-                            <div>28 minutes .. <br>TODO: fix me!</div>
+                            <div>{{ sessions_overview.latest_duration }}</div>
                         </div>
                     </div>
 
@@ -392,7 +392,10 @@
                         <div>
                             <!-- data der skal bruges til graf -->
                             {% for session in sessions_data %}
-                                <p>Max distance: {{ session.max_distance }} | Duration: {{ session.duration }}</p>
+                                <p>Max distance: {{ session.max_distance }}</p>
+                                <p>Duration: {{ session.duration }}</p>
+                                <p>Start time: {{ session.start_time }}</p>
+                                <p>----</p>
                             {% endfor %}
                         </div>
                     </div>

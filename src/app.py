@@ -53,16 +53,30 @@ def get_duration_sum(sessions):
     return f"{hours}t {minutes}m {seconds}s"
 
 
-def get_latest_date(sessions):
+def get_latest_session_info(sessions):
+    """
+    Finder seneste session i en liste af sessioner og returnere info om denne.
+    :param sessions: Liste af objekter der indeholder obj["start_time"] og obj["end_time"]
+    :return: To formaterede strings der angiver datoen og duration af seneste træningssession.
+    """
     if not sessions:
         return None
     latest = max(sessions, key=lambda s: s["start_time"])
     timestamp = datetime.strptime(latest["start_time"], "%Y-%m-%d %H:%M:%S")
-    return timestamp.strftime("%d/%m/%Y")
+    if not (latest["start_time"] and latest["end_time"]):
+        return timestamp, "N/A"
+    duration = calculate_duration(latest["start_time"], latest["end_time"])
+    return timestamp.strftime("%d/%m/%Y"), duration
 
 
 @app.before_request
 def require_login():
+    """
+    Flask funktion der kører før hver request, og tjekker om user er logget ind.
+    Hvis user ikke er logget ind og prøver at tilgå en endpoint der ikke er i allowed_routes,
+    så bliver user sendt til login siden.
+    :return: ...
+    """
     allowed_routes = ["login", "login_create_user", "login_select", "static"]
     if request.endpoint not in allowed_routes and "user_id" not in session:
         return redirect(url_for("login"))
@@ -94,15 +108,14 @@ def index():
         session_info_with_durations.append(s)
 
     total_duration = get_duration_sum(session_info) if session_info else "0"
-    latest_session_date = get_latest_date(session_info) if session_info else "No sessions yet"
+    latest_session_date, latest_duration = get_latest_session_info(session_info) if session_info else "No sessions yet"
     sessions_count = len(session_info) if session_info else 0
 
     sessions_overview = {"best_max_distance": best_max_distance
                          , "total_duration": total_duration
                          , "latest_session_date": latest_session_date
+                         , "latest_duration": latest_duration
                          , "sessions_count": sessions_count}
-
-    # TODO: få fat i last session duration..
 
     return render_template("index.html"
                            , user=user
