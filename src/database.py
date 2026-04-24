@@ -80,12 +80,12 @@ def start_session(session_uuid, user_id):
 
 # --- Session data ---
 
-def insert_session_data(session_uuid, distance):
+def insert_session_data(session_uuid, distance, difficulty):
     with get_connection() as conn:
         conn.execute(
-            """INSERT INTO session_data (session_uuid, distance)
-               VALUES (?, ?)""",
-            (session_uuid, distance)
+            """INSERT INTO session_data (session_uuid, distance, difficulty)
+               VALUES (?, ?, ?)""",
+            (session_uuid, distance, difficulty)
         )
         conn.execute(
             """UPDATE sessions SET

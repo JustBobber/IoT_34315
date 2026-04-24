@@ -244,7 +244,7 @@ def receive_data_from_esp():
     :return: 200
     """
     data = request.get_json()
-    insert_session_data(data["session_uuid"], data["distance"])
+    insert_session_data(data["session_uuid"], data["distance"], data["difficulty"])
     return {"status": "ok"}, 200
 
 
@@ -266,8 +266,6 @@ def current_user():
     Endpoint der polles af esp, for at esp kan hente information om den nuværende user til.
     :return: 200 hvis user er logget ind ellers 401.
     """
-    print(f"current user: {app_state["user_id"]}")
-    print("alalala")
     if app_state["user_id"] is None:
         return {"error": "no user logged in"}, 401
     return {"user_id": app_state["user_id"]}, 200
