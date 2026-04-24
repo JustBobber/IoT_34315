@@ -244,6 +244,8 @@ def receive_data_from_esp():
     :return: 200
     """
     data = request.get_json()
+    if not data:
+        return {"error": "no data received"}, 400
     insert_session_data(data["session_uuid"], data["distance"], data["difficulty"])
     return {"status": "ok"}, 200
 

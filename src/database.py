@@ -42,7 +42,7 @@ def init_db():
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_uuid  TEXT REFERENCES sessions(session_uuid),
                 timestamp     TEXT NOT NULL DEFAULT (datetime('now')),
-                distance      REAL
+                distance      REAL,
                 difficulty    INTEGER
             );
         """)
