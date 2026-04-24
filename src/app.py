@@ -190,18 +190,27 @@ def session_details(session_uuid):
     session_data = get_session_data(session_uuid)
     user_id = session.get("user_id")
     user = session.get("username")
+    session_overview = get_session(session_uuid)
 
-    session_info = None
+    session_info = {"start_time": session_overview["start_time"]  if session_overview
+                                            and session_overview["start_time"] else "N/A"
+                  , "duration": calculate_duration(session_overview["start_time"], session_overview["end_time"])
+                                            if session_overview and session_overview["start_time"] else "N/A"
+                  , "max_distance": round(session_overview["max_distance"], 2)
+                  , "average_difficulty": session_overview["average_difficulty"] if session_overview
+                                            and session_overview["average_difficulty"] else "N/A"
+    }
+
     if session_data:
         first_point = dict(session_data[0])
 
         start_time = first_point.get("timestamp")
         max_distance = max(float(point["distance"]) for point in session_data)
 
-        session_info = {
-            "start_time": start_time,
-            "max_distance": round(max_distance, 1)
-        }
+        # session_info = {
+        #     "start_time": start_time,
+        #     "max_distance": round(max_distance, 1)
+        # }
 
     return render_template(
         "session_details.html",

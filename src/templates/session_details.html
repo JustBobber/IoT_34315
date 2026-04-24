@@ -168,20 +168,28 @@
             <!-- SESSION SUMMARY -->
             <div class="session-card">
                 <div class="session-title">
-                    Session {{ session.start_time }}
+                    Session {{ session_info.start_time }}
                 </div>
 
                 <div class="divider"></div>
 
                 <div class="info-row">
                     <img src="{{ url_for('static', filename='images/small_Progression.png') }}" class="icon">
-                    Max distance: {{ session.max_distance }} cm
+                    Max distance: {{ session_info.max_distance }} cm
                 </div>
 
-                {% if session.end_time %}
+                {% if session_info.duration %}
                 <div class="info-row">
                     <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">
-                    Duration: {{ session.duration }} min
+                    Duration: {{ session_info.duration }} min
+                </div>
+                {% endif %}
+
+                {% if session_info.average_difficulty %}
+                <div class="info-row">
+<!--                    <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">-->
+                    TODO: add 'Strong arm img'.
+                    Average difficulty: {{ session_info.average_difficulty }}
                 </div>
                 {% endif %}
             </div>
