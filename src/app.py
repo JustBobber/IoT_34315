@@ -53,31 +53,6 @@ def get_duration_sum(sessions):
     return f"{hours}t {minutes}m {seconds}s"
 
 
-def get_latest_session_info(sessions):
-    """
-    Finder seneste session i en liste af sessioner og returnere info om denne.
-    :param sessions: Liste af objekter der indeholder obj["start_time"] og obj["end_time"]
-    :return: To formaterede strings der angiver datoen og duration af seneste træningssession.
-    """
-    if not sessions:
-        return None
-    latest = max(sessions, key=lambda s: s["start_time"])
-    timestamp = datetime.strptime(latest["start_time"], "%Y-%m-%d %H:%M:%S")
-    if not (latest["start_time"] and latest["end_time"]):
-        return timestamp, "N/A"
-    duration = calculate_duration(latest["start_time"], latest["end_time"])
-    return timestamp.strftime("%d/%m/%Y"), duration
-
-def get_max_distance(sessions):
-    best_max_distance = 0.0
-    for s in sessions:
-        s = dict(s)
-        if s["max_distance"] and s["max_distance"] > best_max_distance:
-            best_max_distance = s["max_distance"]
-    return best_max_distance
-
-
-
 @app.before_request
 def require_login():
     """
