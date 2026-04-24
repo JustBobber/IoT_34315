@@ -40,6 +40,9 @@ void updateDisplay(String tekst, int size = 10);
 void setup() {
     Serial.begin(115200);
 
+    display.init();
+    display.setFont(ArialMT_Plain_24);
+
     Serial.print("Forbinder til WiFi");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
@@ -51,8 +54,6 @@ void setup() {
     pinMode(START_BUTTON_PIN, INPUT_PULLUP);
     pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
 
-    display.init();
-    display.setFont(ArialMT_Plain_24);
     display.drawString(0, 0, "Hej verden!");
     display.display();
 }
