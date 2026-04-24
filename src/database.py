@@ -131,7 +131,7 @@ def get_latest_session(user_id):
 def get_users_sessions(user_id):
     with get_connection() as conn:
         return conn.execute(
-            "SELECT * FROM sessions WHERE user_id = ?",
+            "SELECT * FROM sessions WHERE user_id = ? ORDER BY start_time ASC;",
             (user_id,)
         ).fetchall()
 
@@ -139,7 +139,7 @@ def get_users_sessions(user_id):
 def get_session_data(session_uuid):
     with get_connection() as conn:
         return conn.execute(
-            "SELECT * FROM session_data WHERE session_uuid = ? ORDER BY timestamp",
+            "SELECT * FROM session_data WHERE session_uuid = ? ORDER BY timestamp ASC",
             (session_uuid,)
         ).fetchall()
 
