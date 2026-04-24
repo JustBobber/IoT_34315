@@ -114,8 +114,8 @@ void loop() {
                 http.addHeader("Content-Type", "application/json");
 
                 String body = "{\"distance\":" + String(distance, 3)
-                            + ",\"session_uuid\":\"" + session_uuid
-                            + ",\"difficulty\"": + difficulty + "\"}";
+                            + ",\"session_uuid\":\"" + session_uuid + "\""
+                            + ",\"difficulty\":" + String(difficulty) + "}";
 
                 int svar = http.POST(body);
                 Serial.println(svar == 200 ? "Sendt OK" : "Fejl: " + String(svar));
