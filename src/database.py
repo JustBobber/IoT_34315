@@ -43,6 +43,7 @@ def init_db():
                 session_uuid  TEXT REFERENCES sessions(session_uuid),
                 timestamp     TEXT NOT NULL DEFAULT (datetime('now')),
                 distance      REAL
+                difficulty    INTEGER
             );
         """)
 
