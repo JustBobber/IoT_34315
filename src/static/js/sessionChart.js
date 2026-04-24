@@ -238,8 +238,8 @@
         const diff = s.avg_difficulty > 0 ? s.avg_difficulty.toFixed(2) : '–';
         tooltip.innerHTML =
             `<strong>${formatDateFull(s.start_time)}</strong><br>` +
-            `Distance:   ${s.max_distance} cm<br>` +
-            `Duration:   ${s.duration}<br>` +
+            `Distance: ${s.max_distance} cm<br>` +
+            (s.duration ? `Duration: ${s.duration}<br>` : '') +
             `Avg difficulty: ${diff}`;
         tooltip.classList.add('visible');
         moveTooltip(e);
