@@ -52,7 +52,7 @@ tjekke om der er en user logget ind da dette er et krav for at kunne påbegynde 
 
 ## Start server, webapp og populer database
 
-### aktiver virtual enviroment
+### Aktiver virtual enviroment
 Hver gang du åbner en ny terminal skal du aktivere miljøet igen:
 
 ```bash
@@ -60,7 +60,7 @@ source .venv/bin/activate   # macOS / Linux
 .venv\Scripts\activate      # Windows
 ```
 
-### start webappen
+### Start webappen
 ```bash
 python3 src/app.py
 ```
@@ -75,7 +75,7 @@ deactivate
 
 ---
 
-### populer databasen: 
+### Populer databasen: 
 For at få noget data i databasen kør følgende script:
 
 ```bash
@@ -84,8 +84,8 @@ python3 src/seeds/alice_and_bob_seed.py
 Det tilføjer et par users og generere et par sessions og noget data. 
 Det kan køres flere gange hvis der ønskes mere data. 
 
-### slet databasen:
-Det kan være nødvendigt/rart at slette database (training.db) den bør ligge her: src/training.db
+### Slet databasen:
+Det kan være nødvendigt/rart at slette database (training.db) den ligger her: src/training.db
 ```bash
 rm src/training.db
 ```
