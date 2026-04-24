@@ -77,7 +77,7 @@ def index():
     user_id = session.get("user_id")
     session_info = get_users_sessions(user_id)
 
-    session_data_with_durations = []
+    session_data_with_durations = []  # TODO: appending durations til sessions bør gøres i database kaldet...
     for s in session_info:
         s = dict(s)
         if s["end_time"]:
@@ -160,11 +160,8 @@ def logout():
     app_state["user_id"] = None
     return redirect(url_for("login"))
 
-
 # ===============================================================
 #					End of user endpoints
-# ===============================================================
-
 # ===============================================================
 #					Start of user sessions view
 # ===============================================================
@@ -213,11 +210,8 @@ def session_details(session_uuid):
         user=user
     )
 
-
 # ===============================================================
 #					End of user sessions view
-# ===============================================================
-
 # ===============================================================
 #			Start of ESP communication and data retrieval
 # ===============================================================
