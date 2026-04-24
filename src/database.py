@@ -55,9 +55,11 @@ def create_user(username):
         conn.execute("INSERT INTO users (username) VALUES (?)", (username,))
         return conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
 
+
 def get_all_users():
     with get_connection() as conn:
         return conn.execute("SELECT * FROM users").fetchall()
+
 
 def login_user(user_id):
     with get_connection() as conn:
@@ -92,6 +94,7 @@ def insert_session_data(session_uuid, distance):
             (distance, session_uuid)
         )
 
+
 def end_session(session_uuid):
     with get_connection() as conn:
         conn.execute(
@@ -105,6 +108,14 @@ def get_session(session_uuid):
         return conn.execute(
             "SELECT * FROM sessions WHERE session_uuid = ?",
             (session_uuid,)
+        ).fetchone()
+
+
+def get_latest_session(user_id):
+    with get_connection() as conn:
+        return conn.execute(
+            "SELECT * FROM sessions WHERE user_id = ? ORDER BY start_time DESC LIMIT 1",
+            (user_id,)
         ).fetchone()
 
 

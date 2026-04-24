@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, session
 from datetime import datetime
 from database import init_db, create_user, start_session, end_session, \
     get_session, insert_session_data, get_session_data, \
-    get_all_users, login_user, get_users_sessions
+    get_all_users, login_user, get_users_sessions, get_latest_session
 
 app = Flask(__name__)
 
@@ -68,6 +68,15 @@ def get_latest_session_info(sessions):
     duration = calculate_duration(latest["start_time"], latest["end_time"])
     return timestamp.strftime("%d/%m/%Y"), duration
 
+def get_max_distance(sessions):
+    best_max_distance = 0.0
+    for s in sessions:
+        s = dict(s)
+        if s["max_distance"] and s["max_distance"] > best_max_distance:
+            best_max_distance = s["max_distance"]
+    return best_max_distance
+
+
 
 @app.before_request
 def require_login():
@@ -87,40 +96,39 @@ def require_login():
 def index():
     """
     Index page
-    :return: Hvis brugeren er logget ind, returneres index.html med username. Ellers returneres index.html uden bruger.
+    :return: Hvis brugeren er logget ind, returneres index.html med username.
     """
     user = session.get("username")
     user_id = session.get("user_id")
     session_info = get_users_sessions(user_id)
-    best_max_distance = 0.0
 
-    session_info_with_durations = []
+    session_data_with_durations = []
     for s in session_info:
         s = dict(s)
-        if s["max_distance"] and s["max_distance"] > best_max_distance:
-            best_max_distance = s["max_distance"]
-
         if s["end_time"]:
             duration = calculate_duration(s["start_time"], s["end_time"])
         else:
             duration = "Not ended"
         s["duration"] = duration
-        session_info_with_durations.append(s)
+        session_data_with_durations.append(s)
 
-    total_duration = get_duration_sum(session_info) if session_info else "0"
-    latest_session_date, latest_duration = get_latest_session_info(session_info) if session_info else "No sessions yet"
-    sessions_count = len(session_info) if session_info else 0
+    latest_session = get_latest_session(user_id)
 
-    sessions_overview = {"best_max_distance": best_max_distance
-                         , "total_duration": total_duration
-                         , "latest_session_date": latest_session_date
-                         , "latest_duration": latest_duration
-                         , "sessions_count": sessions_count}
+    sessions_overview = {"best_max_distance": latest_session["max_distance"] if latest_session
+                                                                    and latest_session["max_distance"] else 0.0
+                        , "latest_session_date": latest_session["start_time"] if latest_session
+                                                                    and latest_session["start_time"] else None
+                        , "latest_duration": calculate_duration(latest_session["start_time"],latest_session["end_time"])
+                                                                    if latest_session and latest_session["start_time"]
+                                                                    and latest_session["end_time"] else "N/A"
+                        , "total_duration": get_duration_sum(session_info) if session_info else "0"
+                        , "sessions_count": len(session_info) if session_info else 0
+    }
 
     return render_template("index.html"
                            , user=user
                            , user_id=user_id
-                           , sessions_data=session_info_with_durations
+                           , sessions_data=session_data_with_durations
                            , sessions_overview=sessions_overview)
 
 
