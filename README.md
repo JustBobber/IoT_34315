@@ -44,8 +44,15 @@ pip install -r requirements.txt
 ---
 
 # Daglig brug
+For at køre projektet er der to ting du skal have kørende: webappen og ESP'en.
+Webappen står for backed og frontend. Der modtager data fra ESP, logger det i database og laver en hjemmeside hvor dataen kan ses.
 
-## aktiver virtual enviroment
+ESP'en står indsamler og sender data til webappen når en træning session er i gang. Ellers poller den serveren for at 
+tjekke om der er en user logget ind da dette er et krav for at kunne påbegynde en træningssession. 
+
+## Start server, webapp og populer database
+
+### aktiver virtual enviroment
 Hver gang du åbner en ny terminal skal du aktivere miljøet igen:
 
 ```bash
@@ -53,7 +60,7 @@ source .venv/bin/activate   # macOS / Linux
 .venv\Scripts\activate      # Windows
 ```
 
-## start webappen
+### start webappen
 ```bash
 python3 src/app.py
 ```
@@ -68,8 +75,8 @@ deactivate
 
 ---
 
-## populer databasen: 
-For at få noget data i databasen kør følgede script:
+### populer databasen: 
+For at få noget data i databasen kør følgende script:
 
 ```bash
 python3 src/seeds/alice_and_bob_seed.py
@@ -77,5 +84,21 @@ python3 src/seeds/alice_and_bob_seed.py
 Det tilføjer et par users og generere et par sessions og noget data. 
 Det kan køres flere gange hvis der ønskes mere data. 
 
-## slet databasen:
+### slet databasen:
 Det kan være nødvendigt/rart at slette database (training.db) den bør ligge her: src/training.db
+```bash
+rm src/training.db
+```
+Kør derefter seed scriptet igen for at få data i databasen.
+
+---
+
+## Start ESP
+Beskriv hvad der skal til får at køre ESP'erne.
+
+### Wiring se diagram ... 
+<indsæt billede af wiring diagram>
+
+### Download firmware
+Download /firmware/.. til esp'erne ...
+
