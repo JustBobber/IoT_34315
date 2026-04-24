@@ -18,7 +18,11 @@ def seed():
     users = ["Alice the Strong", "Bob the not as strong"]
     user_ids = []
 
-    # Difficulty-ranges per bruger: (min_start, max_start, min_end, max_end)
+    distance_ranges = {
+        "Alice the Strong": (10, 100),
+        "Bob the not as strong": (5, 50),
+    }
+
     difficulty_ranges = {
         "Alice the Strong":       (6, 7, 9, 10),
         "Bob the not as strong":  (1, 2, 3, 4),
@@ -36,6 +40,7 @@ def seed():
 
     for user_id, username in user_ids:
         d_min_start, d_max_start, d_min_end, d_max_end = difficulty_ranges[username]
+        d_low, d_high = distance_ranges[username]
 
         for s in range(NUM_SESSIONS):
             session_uuid = str(uuid.uuid4())
@@ -59,7 +64,7 @@ def seed():
 
             difficulties = []
             for i in range(NUM_DATAPOINTS):
-                distance = round(random.uniform(10, 100), 1)
+                distance = round(random.uniform(d_low, d_high), 1)
                 max_distance = max(max_distance, distance)
                 difficulty = round(
                     max(d_min_start, min(d_max_end, session_base + random.uniform(-0.5, 0.5))),
