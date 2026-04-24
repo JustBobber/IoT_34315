@@ -99,6 +99,7 @@ void loop() {
 
         // TODO: følgende skal til outer scope!
         float distance = (float)rand() / RAND_MAX * 10.0f;  // tof.readDistance();
+        int difficulty = random(1,10);                      // potmeter.read -> map -> [1, 10]
         max_distance = max(distance, max_distance);
         updateDisplay("Session in prograss\nDistance: " + String(distance, 2) + "\n\nMax distance: " + String(max_distance, 2));
 
@@ -112,7 +113,9 @@ void loop() {
                 http.begin(client, String(SERVER_BASE_URL) + "/data");
                 http.addHeader("Content-Type", "application/json");
 
-                String body = "{\"distance\":" + String(distance, 3) + ",\"session_uuid\":\"" + session_uuid + "\"}";
+                String body = "{\"distance\":" + String(distance, 3)
+                            + ",\"session_uuid\":\"" + session_uuid
+                            + ",\"difficulty\"": + difficulty + "\"}";
 
                 int svar = http.POST(body);
                 Serial.println(svar == 200 ? "Sendt OK" : "Fejl: " + String(svar));
