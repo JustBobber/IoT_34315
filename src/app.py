@@ -61,7 +61,8 @@ def require_login():
     så bliver user sendt til login siden.
     :return: ...
     """
-    allowed_routes = ["login", "login_create_user", "login_select", "static"]
+    allowed_routes = ["login", "login_create_user", "login_select", "static", "current_user"
+                      ,"start_session_endpoint", "receive_data_from_esp", "end_session_endpoint"]
     if request.endpoint not in allowed_routes and "user_id" not in session:
         return redirect(url_for("login"))
     return None
@@ -265,7 +266,8 @@ def current_user():
     Endpoint der polles af esp, for at esp kan hente information om den nuværende user til.
     :return: 200 hvis user er logget ind ellers 401.
     """
-    #print(f"current user: {app_state["user_id"]}")
+    print(f"current user: {app_state["user_id"]}")
+    print("alalala")
     if app_state["user_id"] is None:
         return {"error": "no user logged in"}, 401
     return {"user_id": app_state["user_id"]}, 200
