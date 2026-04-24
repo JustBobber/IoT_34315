@@ -57,27 +57,28 @@ def seed():
             max_distance = 0
             NUM_DATAPOINTS = 10
 
+            difficulties = []
             for i in range(NUM_DATAPOINTS):
                 distance = round(random.uniform(10, 100), 1)
                 max_distance = max(max_distance, distance)
-
-                # Lille variation inden for sessionen (+/- 0.5), clampet til brugerens range
                 difficulty = round(
                     max(d_min_start, min(d_max_end, session_base + random.uniform(-0.5, 0.5))),
                     1
                 )
-
+                difficulties.append(difficulty)
                 timestamp = (start_time + timedelta(seconds=i * 10)).strftime("%Y-%m-%d %H:%M:%S")
                 conn.execute(
                     "INSERT INTO session_data (session_uuid, distance, difficulty, timestamp) VALUES (?, ?, ?, ?)",
                     (session_uuid, distance, difficulty, timestamp)
                 )
 
+            average_difficulty = round(sum(difficulties) / len(difficulties), 2)
             conn.execute(
-                "UPDATE sessions SET max_distance = ? WHERE session_uuid = ?",
-                (max_distance, session_uuid)
+                "UPDATE sessions SET max_distance = ?, average_difficulty = ? WHERE session_uuid = ?",
+                (max_distance, average_difficulty, session_uuid)
             )
-            print(f"    {NUM_DATAPOINTS} datapunkter indsat, max_distance: {max_distance}")
+            print(
+                f"    {NUM_DATAPOINTS} datapunkter indsat, max_distance: {max_distance}, avg_difficulty: {average_difficulty}")
 
     conn.commit()
     conn.close()

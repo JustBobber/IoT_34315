@@ -35,7 +35,8 @@ def init_db():
                 start_time    TEXT NOT NULL DEFAULT (datetime('now')),
                 end_time      TEXT,
                 user_id       INTEGER REFERENCES users(user_id),
-                max_distance  REAL
+                max_distance  REAL,
+                average_difficulty  REAL
             );
 
             CREATE TABLE IF NOT EXISTS session_data (
@@ -99,8 +100,15 @@ def insert_session_data(session_uuid, distance, difficulty):
 def end_session(session_uuid):
     with get_connection() as conn:
         conn.execute(
-            "UPDATE sessions SET end_time = datetime('now') WHERE session_uuid = ?",
-            (session_uuid,)
+            """UPDATE sessions SET
+                end_time = datetime('now'),
+                average_difficulty = (
+                    SELECT AVG(difficulty)
+                    FROM session_data
+                    WHERE session_uuid = ?
+                )
+               WHERE session_uuid = ?""",
+            (session_uuid, session_uuid)
         )
 
 
