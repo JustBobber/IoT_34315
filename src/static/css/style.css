@@ -594,7 +594,11 @@ h2 {
     min-width: 320px;
     position: relative;
 }
-
+.detailed-chart-area {
+    flex: 1 1 1200px;
+    min-width: 1200px;
+    position: relative;
+}
 #sessionChart {
     width: 100%;
     height: auto;
