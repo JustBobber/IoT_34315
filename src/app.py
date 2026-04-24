@@ -130,7 +130,7 @@ def login_create_user():
     """
     username = request.form.get("username", "").strip()
     if username:
-        create_user(username)
+        create_user(username)  # TODO: fix hvis hvis username allerede findes.
     return redirect(url_for("login"))
 
 
@@ -262,7 +262,7 @@ def end_session_endpoint():
 @app.route("/current_user", methods=["GET"])
 def current_user():
     """
-    Endpoint for at sende information om den nuværende user til esp.
+    Endpoint der polles af esp, for at esp kan hente information om den nuværende user til.
     :return: 200 hvis user er logget ind ellers 401.
     """
     #print(f"current user: {app_state["user_id"]}")
