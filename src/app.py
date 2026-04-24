@@ -22,6 +22,9 @@ def calculate_duration(start_time, end_time):
     :param end_time: Sql timestamp
     :return: formateret string med duration mellem de to tider i minutter og sekunder
     """
+    print(f"start: {start_time}, end: {end_time}")
+    if not (start_time and end_time):
+        return "0m 0s"
     start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
     end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
     delta = end - start
