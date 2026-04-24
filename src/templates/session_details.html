@@ -197,7 +197,10 @@
 
                 <!-- Raw data (temporary) -->
                 {% for datapoint in session_data %}
-                    <p>Distance: {{ datapoint.distance }} | Time: {{ datapoint.timestamp }}</p>
+                    <p>Distance: {{ datapoint.distance }}</p>
+                    <p>Difficulty: {{ datapoint.difficulty }}</p>
+                    <p>Time: {{ datapoint.timestamp }}</p>
+                    <p>---</p>
                 {% endfor %}
             </div>
 
