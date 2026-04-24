@@ -181,7 +181,7 @@ def view_users_sessions(user_id):
         else:
             s["duration"] = "Ikke afsluttet"
         sessions_with_duration.append(s)
-
+    sessions_with_duration.reverse()
     return render_template("users_sessions.html", users_sessions=sessions_with_duration)
 
 
