@@ -182,6 +182,14 @@
                             Duration: {{ session.duration }} min
                         </div>
                         {% endif %}
+
+                        {% if session.end_time %}
+                            <div class="info-row">
+<!--                                <img src="{{ url_for('static', filename='images/small_Duration.png') }}" class="icon">-->
+                                <p>TODO: Tilføj image </p>
+                                Avg difficulty: {{ session.average_difficulty }}
+                            </div>
+                        {% endif %}
                     </div>
 
                 </a>
