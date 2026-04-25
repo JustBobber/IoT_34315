@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, render_template, redirect, url_for, request, session, make_response
 from datetime import datetime
 from database import init_db, create_user, start_session, end_session, \
     get_session, insert_session_data, get_session_data, \
@@ -22,7 +22,6 @@ def calculate_duration(start_time, end_time):
     :param end_time: Sql timestamp
     :return: formateret string med duration mellem de to tider i minutter og sekunder
     """
-    print(f"start: {start_time}, end: {end_time}")
     if not (start_time and end_time):
         return "0m 0s"
     start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
@@ -94,12 +93,12 @@ def index():
     latest_session = get_latest_session(user_id)
 
     sessions_overview = {"best_max_distance": latest_session["max_distance"] if latest_session
-                                                                    and latest_session["max_distance"] else 0.0
+                                            and latest_session["max_distance"] else 0.0
                         , "latest_session_date": latest_session["start_time"] if latest_session
-                                                                    and latest_session["start_time"] else None
+                                            and latest_session["start_time"] else None
                         , "latest_duration": calculate_duration(latest_session["start_time"],latest_session["end_time"])
-                                                                    if latest_session and latest_session["start_time"]
-                                                                    and latest_session["end_time"] else "N/A"
+                                            if latest_session and latest_session["start_time"]
+                                            and latest_session["end_time"] else "N/A"
                         , "total_duration": get_duration_sum(session_info) if session_info else "0"
                         , "sessions_count": len(session_info) if session_info else 0
     }
@@ -160,7 +159,9 @@ def logout():
     Logger user ud ved at fjerne user fra sessionen.
     :return: Sender brugeren tilbage til index siden.
     """
-    session.pop("username", None)
+    session.clear()
+    response = make_response(redirect(url_for("login")))
+    response.delete_cookie("session")
     app_state["user_id"] = None
     return redirect(url_for("login"))
 
@@ -174,19 +175,21 @@ def logout():
 @app.route("/view_users_sessions/<int:user_id>")
 def view_users_sessions(user_id):
     users_sessions = get_users_sessions(user_id)
-
-    # beregner og tilføjer duration af session ud fra start og slut tid.
     sessions_with_duration = []
+
+    # beregner og tilføjer duration af session ud fra start og slut tid og afrunder avg, difficulty
     for s in users_sessions:
         s = dict(s)
         if s["end_time"]:
             s["duration"] = calculate_duration(s["start_time"], s["end_time"])
         else:
             s["duration"] = "Ikke afsluttet"
+
         if s["average_difficulty"]:
             s["average_difficulty"] = round(s["average_difficulty"], 1)
 
         sessions_with_duration.append(s)
+
     sessions_with_duration.reverse()
     return render_template("users_sessions.html", users_sessions=sessions_with_duration)
 
@@ -199,12 +202,12 @@ def session_details(session_uuid):
     session_overview = get_session(session_uuid)
 
     session_info = {"start_time": session_overview["start_time"]  if session_overview
-                                            and session_overview["start_time"] else "N/A"
+                                        and session_overview["start_time"] else "N/A"
                   , "duration": calculate_duration(session_overview["start_time"], session_overview["end_time"])
-                                            if session_overview and session_overview["start_time"] else "N/A"
+                                         if session_overview and session_overview["start_time"] else "N/A"
                   , "max_distance": round(session_overview["max_distance"], 2)
                   , "average_difficulty":  round(session_overview["average_difficulty"], 1) if session_overview
-                                            and session_overview["average_difficulty"] else "N/A"
+                                         and session_overview["average_difficulty"] else "N/A"
     }
 
     return render_template(
