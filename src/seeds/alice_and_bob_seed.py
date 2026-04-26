@@ -60,7 +60,7 @@ def seed():
             session_base = d_min_start + (d_min_end - d_min_start) * progress
 
             max_distance = 0
-            NUM_DATAPOINTS = 10
+            NUM_DATAPOINTS = 200
 
             difficulties = []
             for i in range(NUM_DATAPOINTS):

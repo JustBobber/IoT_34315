@@ -54,7 +54,7 @@
             <div class="graph-card">
                 <div class="graph-title">Session data</div>
                 <div class="detailed-chart-area" style="position: relative;">
-                    <canvas id="sessionChart" style="width:95%; "></canvas>
+                    <canvas id="sessionDetailsChart" style="width:95%; "></canvas>
                     <div id="chartTooltip">
 
                     </div>
@@ -76,6 +76,6 @@
         {% endfor %}
     ];
 </script>
-<script src="{{ url_for('static', filename='js/sessionChart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sessionDetailsChart.js') }}"></script>
 </body>
 </html>
