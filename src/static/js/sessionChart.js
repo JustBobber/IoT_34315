@@ -31,7 +31,7 @@
     const PAD    = { top: 30, right: 30, bottom: 60, left: 72 };
     const PLOT_W = W - PAD.left - PAD.right;
     const PLOT_H = H - PAD.top  - PAD.bottom;
-    const DOT_R  = 8;
+    const DOT_R  = 4;
 
     canvas.width  = W;
     canvas.height = H;
