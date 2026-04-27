@@ -142,3 +142,6 @@ def seed():
     conn.commit()
     conn.close()
     print("\nDatabase seeded!")
+
+if __name__ == "__main__":
+    seed()
