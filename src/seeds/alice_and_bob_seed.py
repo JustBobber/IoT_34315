@@ -18,15 +18,27 @@ def seed():
     users = ["Alice the Strong", "Bob the not as strong"]
     user_ids = []
 
-    distance_ranges = {
-        "Alice the Strong": (10, 100),
-        "Bob the not as strong": (5, 50),
+    settings = {
+        "Alice the Strong": {
+            "start_distance": 35,
+            "end_distance": 105,
+            "start_difficulty": 6,
+            "end_difficulty": 9,
+        },
+        "Bob the not as strong": {
+            "start_distance": 15,
+            "end_distance": 65,
+            "start_difficulty": 2,
+            "end_difficulty": 5,
+        },
     }
 
-    difficulty_ranges = {
-        "Alice the Strong":       (6, 7, 9, 10),
-        "Bob the not as strong":  (1, 2, 3, 4),
-    }
+    NUM_SESSIONS = 10
+    NUM_DATAPOINTS = 200
+
+    NOISE_DISTANCE = 4.0      # random variation in distance
+    NOISE_DIFFICULTY = 0.7    # random variation in difficulty
+    NOISE_TREND = 2.0         # random variation in session-to-session progress
 
     for username in users:
         conn.execute("INSERT OR IGNORE INTO users (username) VALUES (?)", (username,))
@@ -36,58 +48,97 @@ def seed():
         user_ids.append((user_id, username))
         print(f"Bruger oprettet: {username} (id: {user_id})")
 
-    NUM_SESSIONS = 10  # Antal sessioner per bruger
-
     for user_id, username in user_ids:
-        d_min_start, d_max_start, d_min_end, d_max_end = difficulty_ranges[username]
-        d_low, d_high = distance_ranges[username]
+        cfg = settings[username]
 
         for s in range(NUM_SESSIONS):
             session_uuid = str(uuid.uuid4())
-            start_time = datetime.now() - timedelta(hours=random.randint(1, 48))
-            end_time = start_time + timedelta(minutes=random.randint(10, 60))
+
+            start_time = datetime.now() - timedelta(days=NUM_SESSIONS - s)
+            start_time += timedelta(minutes=random.randint(0, 120))
+            end_time = start_time + timedelta(minutes=random.randint(10, 35))
 
             conn.execute(
                 "INSERT INTO sessions (session_uuid, user_id, start_time, end_time) VALUES (?, ?, ?, ?)",
-                (session_uuid, user_id, start_time.strftime("%Y-%m-%d %H:%M:%S"), end_time.strftime("%Y-%m-%d %H:%M:%S"))
+                (
+                    session_uuid,
+                    user_id,
+                    start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                ),
             )
+
             print(f"  Session oprettet: {session_uuid}")
 
-            # Fremskridt på tværs af sessioner: 0.0 (første) → 1.0 (sidste)
-            progress = s / max(NUM_SESSIONS - 1, 1)
+            session_progress = s / max(NUM_SESSIONS - 1, 1)
 
-            # Basis-difficulty for denne session interpoleret mellem start og slut
-            session_base = d_min_start + (d_min_end - d_min_start) * progress
+            session_target_distance = (
+                cfg["start_distance"]
+                + (cfg["end_distance"] - cfg["start_distance"]) * session_progress
+                + random.uniform(-NOISE_TREND, NOISE_TREND)
+            )
+
+            session_base_difficulty = (
+                cfg["start_difficulty"]
+                + (cfg["end_difficulty"] - cfg["start_difficulty"]) * session_progress
+            )
 
             max_distance = 0
-            NUM_DATAPOINTS = 200
-
             difficulties = []
+
             for i in range(NUM_DATAPOINTS):
-                distance = round(random.uniform(d_low, d_high), 1)
-                max_distance = max(max_distance, distance)
-                difficulty = round(
-                    max(d_min_start, min(d_max_end, session_base + random.uniform(-0.5, 0.5))),
-                    1
+                point_progress = i / max(NUM_DATAPOINTS - 1, 1)
+
+                # Distance improves within each session
+                warmup_factor = 0.75 + 0.25 * point_progress
+
+                distance = (
+                    session_target_distance * warmup_factor
+                    + random.uniform(-NOISE_DISTANCE, NOISE_DISTANCE)
                 )
-                difficulties.append(int(round(difficulty)))
-                timestamp = (start_time + timedelta(seconds=i * 10)).strftime("%Y-%m-%d %H:%M:%S")
+
+                distance = max(0, round(distance, 1))
+                max_distance = max(max_distance, distance)
+
+                difficulty = (
+                    session_base_difficulty
+                    + 0.7 * point_progress
+                    + random.uniform(-NOISE_DIFFICULTY, NOISE_DIFFICULTY)
+                )
+
+                difficulty = max(1, min(10, round(difficulty)))
+                difficulties.append(difficulty)
+
+                timestamp = (start_time + timedelta(seconds=i * 10)).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+
                 conn.execute(
-                    "INSERT INTO session_data (session_uuid, distance, difficulty, timestamp) VALUES (?, ?, ?, ?)",
-                    (session_uuid, distance, int(round(difficulty)), timestamp)
+                    """
+                    INSERT INTO session_data
+                    (session_uuid, distance, difficulty, timestamp)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (session_uuid, distance, difficulty, timestamp),
                 )
 
             average_difficulty = round(sum(difficulties) / len(difficulties), 1)
+
             conn.execute(
-                "UPDATE sessions SET max_distance = ?, average_difficulty = ? WHERE session_uuid = ?",
-                (max_distance, average_difficulty, session_uuid)
+                """
+                UPDATE sessions
+                SET max_distance = ?, average_difficulty = ?
+                WHERE session_uuid = ?
+                """,
+                (max_distance, average_difficulty, session_uuid),
             )
+
             print(
-                f"    {NUM_DATAPOINTS} datapunkter indsat, max_distance: {max_distance}, avg_difficulty: {average_difficulty}")
+                f"    {NUM_DATAPOINTS} datapunkter indsat, "
+                f"max_distance: {max_distance}, "
+                f"avg_difficulty: {average_difficulty}"
+            )
 
     conn.commit()
     conn.close()
     print("\nDatabase seeded!")
-
-if __name__ == "__main__":
-    seed()
