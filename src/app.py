@@ -164,10 +164,11 @@ def session_details(session_uuid):
     session_info = {"start_time": session_overview["start_time"]  if session_overview
                                         and session_overview["start_time"] else "N/A"
                   , "duration": calculate_duration(session_overview["start_time"], session_overview["end_time"])
-                                         if session_overview and session_overview["start_time"] else "N/A"
-                  , "max_distance": round(session_overview["max_distance"], 2)
+                                        if session_overview and session_overview["start_time"] else "N/A"
+                  , "max_distance": round(session_overview["max_distance"], 2) if session_overview
+                                        and session_overview["max_distace"] else "0.00"
                   , "average_difficulty":  round(session_overview["average_difficulty"], 1) if session_overview
-                                         and session_overview["average_difficulty"] else "N/A"
+                                        and session_overview["average_difficulty"] else "N/A"
     }
 
     return render_template(
