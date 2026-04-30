@@ -21,13 +21,13 @@ def seed():
     settings = {
         "Alice the Strong": {
             "start_distance": 35,
-            "end_distance": 105,
+            "end_distance": 87,
             "start_difficulty": 6,
             "end_difficulty": 9,
         },
         "Bob the not as strong": {
             "start_distance": 15,
-            "end_distance": 65,
+            "end_distance": 55,
             "start_difficulty": 2,
             "end_difficulty": 5,
         },
@@ -36,7 +36,7 @@ def seed():
     NUM_SESSIONS = 10
     NUM_DATAPOINTS = 200
 
-    NOISE_DISTANCE = 4.0      # random variation in distance
+    NOISE_DISTANCE = 10.0      # random variation in distance
     NOISE_DIFFICULTY = 0.7    # random variation in difficulty
     NOISE_TREND = 2.0         # random variation in session-to-session progress
 
