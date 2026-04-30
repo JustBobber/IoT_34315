@@ -13,7 +13,7 @@ const int STOP_BUTTON_PIN = 7;
 const int LIMIT_SWITCH_TOP_PIN = 8;
 const int LIMIT_SWITCH_BOTTOM_PIN = 9;
 
-const int POTIOMETER_PIN = 5;
+const int POTENTIOMETER_PIN = 5;
 
 const int TOF_SDA_PIN = 11;
 const int TOF_SCL_PIN = 12;
@@ -22,9 +22,9 @@ const int STEPPER_STEP_PIN = 14;
 const int STEPPER_DIR_PIN = 13;
 const int STEP_DELAY_US = 1000;
 
-// TODO: Update when changed..
-const int TX_PIN = 44;
-const int RX_PIN = 43;
+const int TX_PIN = 17;
+const int RX_PIN = 16;
+HardwareSerial mySerial(2);
 
 VL53L0X tof;
 
@@ -67,12 +67,12 @@ String session_uuid = "";
 // ___ user consts and variables ___
 bool user_logged_in = false;
 
-
-
 void updateDisplay(String tekst, int size = 10);
 
 void setup() {
     Serial.begin(115200);
+    mySerial.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN); // UART2
+
 
     // tryk knapper og kontakter
     pinMode(START_BUTTON_PIN, INPUT_PULLUP);
@@ -105,7 +105,7 @@ void loop() {
 
     pollUserStatus(); // Checks if a user is logged in.
 
-    difficulty = map(analogRead(POTIOMETER_PIN), 0, 4095, 0, 10);
+    difficulty = map(analogRead(POTENTIOMETER_PIN), 0, 4095, 0, 10);
     tofDistance = readTofSensor(); // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
 
     // TODO: fix konvertering af tofDistance og max_distance til cm, float med digit (eg. (float) max_distance / 100 )
@@ -312,6 +312,7 @@ void updateDisplay(String tekst, int fontsize) {
     if ((millis() - UART_TRANSMIT_DELAY) > uart_transmit_timer) {
         // TODO: implementer TX funktionalitet til String tekst
         Serial.println(stringToSend);
+        mySerial.println(stringToSend);
 
         uart_transmit_timer = millis();
     }
