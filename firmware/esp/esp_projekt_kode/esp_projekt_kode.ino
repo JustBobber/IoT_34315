@@ -1,11 +1,43 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino.h>
+#include <Wire.h>
+#include "SH1106Wire.h"
+#include <VL53L0X.h>
 
-// hardware setup
-const int START_BUTTON_PIN = 21;
-const int STOP_BUTTON_PIN = 22;
-// tof = VL53L0X();  // init tof sensor 
+
+// ___ hardware setup ___
+const int START_BUTTON_PIN = 6;
+const int STOP_BUTTON_PIN = 7;
+
+const int LIMIT_SWITCH_TOP_PIN = 8;
+const int LIMIT_SWITCH_BOTTOM_PIN = 9;
+
+const int POTIOMETER_PIN = 5;
+
+const int TOF_SDA_PIN = 11;
+const int TOF_SCL_PIN = 12;
+
+const int STEPPER_STEP_PIN = 14;
+const int STEPPER_DIR_PIN = 13;
+const int STEP_DELAY_US = 1000;
+
+// TODO: Update when changed..
+const int TX_PIN = 44;
+const int RX_PIN = 43;
+
+VL53L0X tof;
+
+// ___ sensor variable ___
+bool MOTOR_UP = true;
+bool MOTOR_DOWN = false;
+
+int difficulty = 0; // mapping fra potmeter value
+
+uint16_t tofDistance = 0;
+
+uint16_t tofBottomDistance; // afstanden til tof sensoren når den er i bund.
+uint16_t tofTopDistance;
 
 /*
 * Sørg for at starte serveren for at modtage og se dataene på localhost:5050.
@@ -14,53 +46,79 @@ const char* WIFI_SSID = "<wifi name>";				    // update ssid
 const char* WIFI_PASSWORD = "<wifi password>";			// update pw
 const char* SERVER_BASE_URL = "http://<...ip...:5050";	// update ip
 
-
 const int SECOND_IN_MILLIS = 1000;
 
-// data sending consts and variables
-const int INTERVAL_SEK = 20;  // Hvor ofte der sendes
-const unsigned long TCP_MESSAGE_INTERVAL = 20 * SECOND_IN_MILLIS;
+// ___ data sending consts and variables ___
+// Data til server
+const unsigned long TCP_MESSAGE_INTERVAL = 20 * SECOND_IN_MILLIS; // Hvor ofte der sendes data til serveren, hvert 20 sekund. TODO: opdater efter behov.
 unsigned long last_tcp_message_send_time = millis();
-
-// session variables
-bool session_in_progress = false;
-float max_distance = 0.0;
-String session_uuid = "";
-
-// user consts and variables
-bool user_logged_in = false;
+// poller server for at tjekke om der er user logget ind
 const unsigned long POLL_INTERVAL = 5 * SECOND_IN_MILLIS;  // poll hvert 5. sekund
 unsigned long last_poll_time = 0;
+// sender update til display
+unsigned long uart_transmit_timer = millis();
+unsigned long UART_TRANSMIT_DELAY = 100; // updaterer display hvert 100. millisekund.
 
-// OLed display
-SH1106Wire display(0x3c, 21, 22); // I2C adresse, SDA, SCL
+// ___ session variables ___
+bool session_in_progress = false;
+uint16_t max_distance = 0; // kun til display
+String session_uuid = "";
+
+// ___ user consts and variables ___
+bool user_logged_in = false;
+
+
 
 void updateDisplay(String tekst, int size = 10);
 
 void setup() {
     Serial.begin(115200);
 
-    display.init();
-    display.setFont(ArialMT_Plain_24);
+    // tryk knapper og kontakter
+    pinMode(START_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(LIMIT_SWITCH_BOTTOM_PIN, INPUT_PULLUP);
+    pinMode(LIMIT_SWITCH_TOP_PIN, INPUT_PULLUP);
 
+    // time of flight sensor
+    Wire.begin(TOF_SDA_PIN, TOF_SCL_PIN, 400000);
+    tof.setTimeout(500);
+    tof.init(); // TODO: afgør om der skal være et tjek af om init gik godt.
+    tof.startContinuous();
+
+
+    // TODO: implementer kalibration og kald den her
+    // calibrateTofSensor();
+
+    // connecter til wifi
     Serial.print("Forbinder til WiFi");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
+        updateDisplay("No network \nconnection..");
     }
     Serial.println("\nForbundet! IP: " + WiFi.localIP().toString());
-
-    pinMode(START_BUTTON_PIN, INPUT_PULLUP);
-    pinMode(STOP_BUTTON_PIN, INPUT_PULLUP);
-
-    display.drawString(0, 0, "Hej verden!");
-    display.display();
 }
 
 void loop() {
 
     pollUserStatus(); // Checks if a user is logged in.
+
+    difficulty = map(analogRead(POTIOMETER_PIN), 0, 4095, 0, 10);
+    tofDistance = readTofSensor(); // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
+
+    // TODO: fix konvertering af tofDistance og max_distance til cm, float med digit (eg. (float) max_distance / 100 )
+    max_distance = max(tofDistance, max_distance);
+
+    // TIL TEST
+    // Serial.print("buttom pin:");
+    // Serial.println(digitalRead(LIMIT_SWITCH_BOTTOM_PIN));
+    // Serial.print("top pin:");
+    // Serial.println(digitalRead(LIMIT_SWITCH_TOP_PIN));
+    // Serial.print("distance: ");
+    // Serial.println(String(tofDistance));
+    // delay(500);
 
     if (!session_in_progress)
         if (!user_logged_in) {
@@ -72,58 +130,45 @@ void loop() {
     // Start button
     if (digitalRead(START_BUTTON_PIN) == LOW && not session_in_progress) {
         session_uuid = generateUUID();
+        max_distance = 0;  // resetter max distance ved start af ny session.
         if (startSession(session_uuid) == true) {
             session_in_progress = true;
-            Serial.print("Starting session with uuid: ");
-            Serial.println(session_uuid);
             updateDisplay("Starting session");
         }
         else {
-            Serial.println("display.write : 'Log ind';");
-            updateDisplay("Log in!");
+            updateDisplay("Log in first!");
         }
     }
 
     // Stop button
     if (digitalRead(STOP_BUTTON_PIN) == LOW && session_in_progress) {
-        Serial.println("Stopping session");
-
         bool result = stopSession(session_uuid);
-        session_in_progress = !result;  // updatere session state ud fra return af stop_session.
-                                        // TODO: find ud af om det er hensigtsmessigt..
+        session_in_progress = !result;  // opdatere session state ud fra return af stop_session.
+        updateDisplay("Session has ended\n\nMax distance for session was: " + String(max_distance)); // TODO opdater med konverteringen når den er lavet..
     }
 
     if (session_in_progress == true && (millis() - TCP_MESSAGE_INTERVAL) > last_tcp_message_send_time) {
 
         last_tcp_message_send_time = millis();
 
-        // TODO: følgende skal til outer scope!
-        float distance = (float)rand() / RAND_MAX * 10.0f;  // tof.readDistance();
-        int difficulty = random(1,10);                      // potmeter.read -> map -> [1, 10]
-        max_distance = max(distance, max_distance);
-        updateDisplay("Session in prograss\nDistance: " + String(distance, 2) + "\n\nMax distance: " + String(max_distance, 2));
-
-        if (isnan(distance)) {
-            Serial.println("Fejl: Kunne ikke læse ... sensor!");
+        // if (isnan(tofDistance)) { // virker kun til floats eller doubles..
+        if (tof.timeoutOccurred()) {
+            updateDisplay("Fejl: Kunne ikke læse afstands sensor!");
         } else {
-            Serial.printf("Distance: %.3f (some unit) \n", distance);
-            if (WiFi.status() == WL_CONNECTED) {
-                WiFiClient client;
-                HTTPClient http;
-                http.begin(client, String(SERVER_BASE_URL) + "/data");
-                http.addHeader("Content-Type", "application/json");
+            updateDisplay("Distance: " + String(tofDistance) +" (some unit)");
+            bool sendDataResult = send_session_data();
 
-                String body = "{\"distance\":" + String(distance, 3)
-                            + ",\"session_uuid\":\"" + session_uuid + "\""
-                            + ",\"difficulty\":" + String(difficulty) + "}";
-
-                int svar = http.POST(body);
-                Serial.println(svar == 200 ? "Sendt OK" : "Fejl: " + String(svar));
-                http.end();
+            if (sendDataResult == true) {
+                updateDisplay("Session in prograss\nDistance: " + String(tofDistance, 2) + "\n\nMax distance: " + String(max_distance, 2) + "\n Difficulty: " + String(difficulty));
+            } else {
+                updateDisplay("kunne ikke sende data!");
             }
         }
     }
 }
+
+
+// ___ Helper functions ___
 
 /*
 * generates an uuid for the current training session such that we can make sure
@@ -162,19 +207,42 @@ bool startSession(String uuid) {
 
     String body = "{\"session_uuid\":\"" + uuid + "\"}";
 
-    int httpCode = http.POST(body);
+    int svar = http.POST(body);
     http.end();
 
-    if (httpCode == 200) {
-        updateDisplay("User logget ind");
-        // display.print("Logget ind!");
+    if (svar == 200) {
         return true;
     } else {
-        updateDisplay("Log ind først");
-        // display.print("Log ind først");  // 401
         return false;
     }
 }
+
+
+bool send_session_data() {
+
+    if (WiFi.status() != WL_CONNECTED) {
+        return false;
+    }
+
+    WiFiClient client;
+    HTTPClient http;
+    http.begin(client, String(SERVER_BASE_URL) + "/data");
+    http.addHeader("Content-Type", "application/json");
+
+    String body = "{\"distance\":" + String(tofDistance, 3)
+                + ",\"session_uuid\":\"" + session_uuid + "\""
+                + ",\"difficulty\":" + String(difficulty) + "}";
+
+    int svar = http.POST(body);
+    http.end();
+    // updateDisplay(svar == 200 ? "Sendt OK" : "Fejl: " + String(svar));
+    if (svar == 200) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 /*
 * Stops an ongoing training session.
@@ -185,7 +253,7 @@ bool startSession(String uuid) {
 bool stopSession(String uuid) {
 
     if (session_in_progress == false) {
-        return true; // if session is not in progress it counts as success.
+        return true; // Hvis der ikke er en træningssession i gang tælle dette som success.
     }
 
     if (WiFi.status() != WL_CONNECTED) {
@@ -199,10 +267,10 @@ bool stopSession(String uuid) {
 
     String body = "{\"session_uuid\":\"" + uuid + "\"}";
 
-    int httpCode = http.POST(body);
+    int svar = http.POST(body);
     http.end();
 
-    if (httpCode == 200) {
+    if (svar == 200) {
         return true;
     } else {
         return false;
@@ -214,8 +282,14 @@ bool stopSession(String uuid) {
 *  The state of user_logged_in then gets updated.
 */
 void pollUserStatus() {
-    if (millis() - last_poll_time < POLL_INTERVAL) return;
+    if (millis() - last_poll_time < POLL_INTERVAL) {
+        return;
+    }
     last_poll_time = millis();
+
+    if (WiFi.status() != WL_CONNECTED) {
+        return;
+    }
 
     WiFiClient client;
     HTTPClient http;
@@ -233,18 +307,46 @@ void pollUserStatus() {
 }
 
 void updateDisplay(String tekst, int fontsize) {
-    // vi kan generere egne fonts her:
-    //  https://oleddisplay.squix.ch/
-    display.clear();
-    if (fontsize >= 24) {
-        display.setFont(ArialMT_Plain_24);
+
+    String stringToSend = tekst;
+    if ((millis() - UART_TRANSMIT_DELAY) > uart_transmit_timer) {
+        // TODO: implementer TX funktionalitet til String tekst
+        Serial.println(stringToSend);
+
+        uart_transmit_timer = millis();
     }
-    else if (fontsize >= 16) {
-        display.setFont(ArialMT_Plain_16);
+}
+
+/*
+* Helper funktion to read from time of flight sensor
+* Return: distance in millimeters
+*/
+uint16_t readTofSensor() {
+    uint16_t tof_distance = tof.readRangeContinuousMillimeters();
+    return tof_distance;
+}
+
+/*
+* Running the motor to the top and bottom limit switch to calibrate the time of fligth sensor with respect to the
+* limit swithces.
+*/
+void calibrateTofSensor() {
+    // TODO: tjek at motorene køre den rigtige vej!
+    digitalWrite(STEPPER_DIR_PIN, MOTOR_UP);
+    while(digitalRead(LIMIT_SWITCH_TOP_PIN) == HIGH) {
+        digitalWrite(STEPPER_STEP_PIN, HIGH);
+        delayMicroseconds(STEP_DELAY_US);
+        digitalWrite(STEPPER_STEP_PIN, LOW);
+        delayMicroseconds(STEP_DELAY_US);
     }
-    else {
-        display.setFont(ArialMT_Plain_10);
+    tofTopDistance = readTofSensor();
+
+    digitalWrite(STEPPER_DIR_PIN, MOTOR_DOWN);
+    while(digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == HIGH) {
+        digitalWrite(STEPPER_STEP_PIN, HIGH);
+        delayMicroseconds(STEP_DELAY_US);
+        digitalWrite(STEPPER_STEP_PIN, LOW);
+        delayMicroseconds(STEP_DELAY_US);
     }
-    display.drawString(0, 0, tekst);
-    display.display();
+    tofBottomDistance = readTofSensor();
 }
