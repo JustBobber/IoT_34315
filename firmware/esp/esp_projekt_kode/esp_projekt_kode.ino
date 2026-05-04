@@ -2,7 +2,6 @@
 #include <HTTPClient.h>
 #include <Arduino.h>
 #include <Wire.h>
-#include "SH1106Wire.h"
 #include <VL53L0X.h>
 
 
@@ -59,7 +58,7 @@ const unsigned long POLL_INTERVAL = 5 * SECOND_IN_MILLIS;  // poll hvert 5. seku
 unsigned long last_poll_time = 0;
 // sender update til display
 unsigned long uart_transmit_timer = millis();
-unsigned long UART_TRANSMIT_DELAY = 100; // updaterer display hvert 100. millisekund.
+unsigned long UART_TRANSMIT_DELAY = 1000; // updaterer display hvert 100. millisekund.
 
 // ___ session variables ___
 bool session_in_progress = false;
@@ -116,7 +115,10 @@ void loop() {
     pollUserStatus(); // Checks if a user is logged in.
 
     difficulty = map(analogRead(POTENTIOMETER_PIN), 0, 4095, 0, 10);
-    tofDistance = readTofSensor() - tofBottomDistance; // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
+    tofDistance = readTofSensor() - tofBottomDistance + 15; // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
+    if (tofDistance > 1000) {
+        tofDistance = 0;
+    }
 
     max_distance = max(tofDistance, max_distance);
 
@@ -125,8 +127,8 @@ void loop() {
     // Serial.println(digitalRead(LIMIT_SWITCH_BOTTOM_PIN));
     // Serial.print("top pin:");
     // Serial.println(digitalRead(LIMIT_SWITCH_TOP_PIN));
-    Serial.print("distance: ");
-    Serial.println(String(tofDistance));
+    // Serial.print("distance: ");
+    // Serial.println(String(tofDistance));
     // delay(500);
 
     if (!session_in_progress)
@@ -245,9 +247,9 @@ bool send_session_data() {
     http.begin(client, String(SERVER_BASE_URL) + "/data");
     http.addHeader("Content-Type", "application/json");
 
-    String body = "{\"distance\":" + String((float)tofDistance / 10)
+    String body = "{\"distance\":" + String((float)tofDistance / 10, 1)
                 + ",\"session_uuid\":\"" + session_uuid + "\""
-                + ",\"difficulty\":" + String((float)difficulty, 10) + "}";
+                + ",\"difficulty\":" + String((float)difficulty / 10, 1) + "}";
 
     int svar = http.POST(body);
     http.end();
@@ -340,9 +342,6 @@ void updateDisplay(String tekst, int fontsize) {
 */
 uint16_t readTofSensor() {
     uint16_t tof_distance = tof.readRangeContinuousMillimeters();
-    if (tof_distance > 1000) {
-        tof_distance = 0;
-    }
 
     return tof_distance;
 }
@@ -412,4 +411,3 @@ void runMotor(int difficulty) {
 
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
 }
-
