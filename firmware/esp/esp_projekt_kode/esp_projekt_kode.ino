@@ -67,6 +67,8 @@ String session_uuid = "";
 // ___ user consts and variables ___
 bool user_logged_in = false;
 
+
+
 void updateDisplay(String tekst, int size = 10);
 
 void setup() {
@@ -80,6 +82,15 @@ void setup() {
     pinMode(LIMIT_SWITCH_BOTTOM_PIN, INPUT_PULLUP);
     pinMode(LIMIT_SWITCH_TOP_PIN, INPUT_PULLUP);
 
+    // motor setup
+    pinMode(STEPPER_STEP_PIN, OUTPUT);
+    pinMode(STEPPER_STEP_PIN, OUTPUT);
+    pinMode(STEPPER_ENABLE_PIN, OUTPUT);
+
+    digitalWrite(STEPPER_ENABLE_PIN, LOW);
+    digitalWrite(STEPPER_STEP_PIN, LOW);
+    digitalWrite(STEPPER_DIR_PIN, LOW);
+
     // time of flight sensor
     Wire.begin(TOF_SDA_PIN, TOF_SCL_PIN, 400000);
     tof.setTimeout(500);
@@ -88,7 +99,7 @@ void setup() {
 
 
     // TODO: implementer kalibration og kald den her
-    // calibrateTofSensor();
+    calibrateTofSensor();
 
     // connecter til wifi
     Serial.print("Forbinder til WiFi");
@@ -311,8 +322,8 @@ void updateDisplay(String tekst, int fontsize) {
     String stringToSend = tekst;
     if ((millis() - UART_TRANSMIT_DELAY) > uart_transmit_timer) {
         // TODO: implementer TX funktionalitet til String tekst
-        Serial.println(stringToSend);
         mySerial.println(stringToSend);
+        Serial.println(stringToSend);
 
         uart_transmit_timer = millis();
     }
@@ -332,6 +343,7 @@ uint16_t readTofSensor() {
 * limit swithces.
 */
 void calibrateTofSensor() {
+    Serial.println("calibrating ToF");
     // TODO: tjek at motorene køre den rigtige vej!
     digitalWrite(STEPPER_DIR_PIN, MOTOR_UP);
     while(digitalRead(LIMIT_SWITCH_TOP_PIN) == HIGH) {
@@ -341,6 +353,8 @@ void calibrateTofSensor() {
         delayMicroseconds(STEP_DELAY_US);
     }
     tofTopDistance = readTofSensor();
+    Serial.println("top limit switch activated");
+
 
     digitalWrite(STEPPER_DIR_PIN, MOTOR_DOWN);
     while(digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == HIGH) {
@@ -350,4 +364,9 @@ void calibrateTofSensor() {
         delayMicroseconds(STEP_DELAY_US);
     }
     tofBottomDistance = readTofSensor();
+    Serial.println("bottom limit switch activated");
 }
+
+// TODO: Mangler koden der skal få motoren til at køre mod bottom limit switch
+//       baseret på difficulty.
+
