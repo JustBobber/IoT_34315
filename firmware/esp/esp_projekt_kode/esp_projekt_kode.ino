@@ -20,7 +20,9 @@ const int TOF_SCL_PIN = 12;
 
 const int STEPPER_STEP_PIN = 14;
 const int STEPPER_DIR_PIN = 13;
-const int STEP_DELAY_US = 1000;
+const int STEPPER_ENABLE_PIN = 10;
+const int STEP_DELAY_US = 100;
+
 
 const int TX_PIN = 17;
 const int RX_PIN = 16;
@@ -29,8 +31,8 @@ HardwareSerial mySerial(2);
 VL53L0X tof;
 
 // ___ sensor variable ___
-bool MOTOR_UP = true;
-bool MOTOR_DOWN = false;
+bool MOTOR_UP = false;
+bool MOTOR_DOWN = true;
 
 int difficulty = 0; // mapping fra potmeter value
 
@@ -123,8 +125,8 @@ void loop() {
     // Serial.println(digitalRead(LIMIT_SWITCH_BOTTOM_PIN));
     // Serial.print("top pin:");
     // Serial.println(digitalRead(LIMIT_SWITCH_TOP_PIN));
-    // Serial.print("distance: ");
-    // Serial.println(String(tofDistance));
+    Serial.print("distance: ");
+    Serial.println(String(tofDistance));
     // delay(500);
 
     if (!session_in_progress)
@@ -170,7 +172,7 @@ void loop() {
                 bool sendDataResult = send_session_data();
 
                 if (sendDataResult == true) {
-                    updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10, 2) + " cm" + "\n\nMax distance: " + String((float)max_distance / 10, 2) + " cm" + "\n Difficulty: " + String(difficulty));
+                    updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10) + " cm" + "\n\nMax distance: " + String((float)max_distance / 10) + " cm" + "\n Difficulty: " + String(difficulty));
                 } else {
                     updateDisplay("kunne ikke sende data!");
                 }
@@ -243,9 +245,9 @@ bool send_session_data() {
     http.begin(client, String(SERVER_BASE_URL) + "/data");
     http.addHeader("Content-Type", "application/json");
 
-    String body = "{\"distance\":" + String(tofDistance, 3)
+    String body = "{\"distance\":" + String((float)tofDistance / 10)
                 + ",\"session_uuid\":\"" + session_uuid + "\""
-                + ",\"difficulty\":" + String(difficulty) + "}";
+                + ",\"difficulty\":" + String((float)difficulty, 10) + "}";
 
     int svar = http.POST(body);
     http.end();
@@ -338,6 +340,10 @@ void updateDisplay(String tekst, int fontsize) {
 */
 uint16_t readTofSensor() {
     uint16_t tof_distance = tof.readRangeContinuousMillimeters();
+    if (tof_distance > 1000) {
+        tof_distance = 0;
+    }
+
     return tof_distance;
 }
 
@@ -374,25 +380,36 @@ void calibrateTofSensor() {
     Serial.println("bottom limit switch activated");
     Serial.print("Bottom pos: ");
     Serial.println(tofBottomDistance);
+
+    digitalWrite(STEPPER_ENABLE_PIN, HIGH);
 }
 
 /*
 * Run the motor down based on difficulty
 */
 void runMotor(int difficulty) {
-
+    return; // TODO: Remove me!
     if (difficulty == 0) {
         return;
     }
-
-    if(digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == LOW){
+    if (digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == LOW) {
         return;
     }
 
-    int stepDelay = map(difficulty, 1000, 100, 1, 10);
+    int stepDelay = map(difficulty, 1, 10, 1000, 100);
+    int steps = map(difficulty, 1, 10, 5, 50);
 
-    digitalWrite(STEPPER_STEP_PIN, HIGH);
-    delayMicroseconds(stepDelay);
-    digitalWrite(STEPPER_STEP_PIN, LOW);
-    delayMicroseconds(stepDelay);
+    digitalWrite(STEPPER_ENABLE_PIN, LOW);
+
+    for (int i = 0; i < steps; i++) {
+        if (digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == LOW) break;
+
+        digitalWrite(STEPPER_STEP_PIN, HIGH);
+        delayMicroseconds(stepDelay);
+        digitalWrite(STEPPER_STEP_PIN, LOW);
+        delayMicroseconds(stepDelay);
+    }
+
+    digitalWrite(STEPPER_ENABLE_PIN, HIGH);
 }
+
