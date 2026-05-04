@@ -50,7 +50,7 @@ const int SECOND_IN_MILLIS = 1000;
 
 // ___ data sending consts and variables ___
 // Data til server
-const unsigned long TCP_MESSAGE_INTERVAL = 20 * SECOND_IN_MILLIS; // Hvor ofte der sendes data til serveren, hvert 20 sekund. TODO: opdater efter behov.
+const unsigned long TCP_MESSAGE_INTERVAL = 5 * SECOND_IN_MILLIS; // Hvor ofte der sendes data til serveren, hvert 20 sekund. TODO: opdater efter behov.
 unsigned long last_tcp_message_send_time = millis();
 // poller server for at tjekke om der er user logget ind
 const unsigned long POLL_INTERVAL = 5 * SECOND_IN_MILLIS;  // poll hvert 5. sekund
