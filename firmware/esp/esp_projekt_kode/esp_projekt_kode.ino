@@ -233,7 +233,9 @@ bool startSession(String uuid) {
     }
 }
 
-
+/*
+* sends data to the server for the current training session. The data includes distance, difficulty and session uuid.
+*/
 bool send_session_data() {
 
     if (WiFi.status() != WL_CONNECTED) {
