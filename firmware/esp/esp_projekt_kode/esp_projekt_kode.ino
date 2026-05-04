@@ -84,7 +84,7 @@ void setup() {
 
     // motor setup
     pinMode(STEPPER_STEP_PIN, OUTPUT);
-    pinMode(STEPPER_STEP_PIN, OUTPUT);
+    pinMode(STEPPER_DIR_PIN, OUTPUT);
     pinMode(STEPPER_ENABLE_PIN, OUTPUT);
 
     digitalWrite(STEPPER_ENABLE_PIN, LOW);
@@ -117,7 +117,7 @@ void loop() {
     pollUserStatus(); // Checks if a user is logged in.
 
     difficulty = map(analogRead(POTENTIOMETER_PIN), 0, 4095, 0, 10);
-    tofDistance = readTofSensor(); // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
+    tofDistance = readTofSensor() - tofBottomDistance; // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
 
     // TODO: fix konvertering af tofDistance og max_distance til cm, float med digit (eg. (float) max_distance / 100 )
     max_distance = max(tofDistance, max_distance);
@@ -158,21 +158,26 @@ void loop() {
         updateDisplay("Session has ended\n\nMax distance for session was: " + String((float)max_distance / 10)); // TODO opdater med konverteringen når den er lavet..
     }
 
-    if (session_in_progress == true && (millis() - TCP_MESSAGE_INTERVAL) > last_tcp_message_send_time) {
+    if (session_in_progress == true) {
 
-        last_tcp_message_send_time = millis();
+        runMotor(difficulty);
 
-        // if (isnan(tofDistance)) { // virker kun til floats eller doubles..
-        if (tof.timeoutOccurred()) {
-            updateDisplay("Fejl: Kunne ikke læse afstands sensor!");
-        } else {
-            updateDisplay("Distance: " + String((float)tofDistance / 10) +" (some unit)");
-            bool sendDataResult = send_session_data();
+        if ((millis() - TCP_MESSAGE_INTERVAL) > last_tcp_message_send_time) {
 
-            if (sendDataResult == true) {
-                updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10, 2) + "\n\nMax distance: " + String((float)max_distance / 10, 2) + "\n Difficulty: " + String(difficulty));
+            last_tcp_message_send_time = millis();
+
+            // if (isnan(tofDistance)) { // virker kun til floats eller doubles..
+            if (tof.timeoutOccurred()) {
+                updateDisplay("Fejl: Kunne ikke læse afstands sensor!");
             } else {
-                updateDisplay("kunne ikke sende data!");
+                updateDisplay("Distance: " + String((float)tofDistance / 10) +" (some unit)");
+                bool sendDataResult = send_session_data();
+
+                if (sendDataResult == true) {
+                    updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10, 2) + "\n\nMax distance: " + String((float)max_distance / 10, 2) + "\n Difficulty: " + String(difficulty));
+                } else {
+                    updateDisplay("kunne ikke sende data!");
+                }
             }
         }
     }
@@ -346,6 +351,8 @@ void calibrateTofSensor() {
     Serial.println("calibrating ToF");
     // TODO: tjek at motorene køre den rigtige vej!
     digitalWrite(STEPPER_DIR_PIN, MOTOR_UP);
+    delayMicroseconds(10);
+
     while(digitalRead(LIMIT_SWITCH_TOP_PIN) == HIGH) {
         digitalWrite(STEPPER_STEP_PIN, HIGH);
         delayMicroseconds(STEP_DELAY_US);
@@ -354,9 +361,12 @@ void calibrateTofSensor() {
     }
     tofTopDistance = readTofSensor();
     Serial.println("top limit switch activated");
-
+    Serial.print("Top pos: ");
+    Serial.println(tofTopDistance);
 
     digitalWrite(STEPPER_DIR_PIN, MOTOR_DOWN);
+    delayMicroseconds(10);
+
     while(digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == HIGH) {
         digitalWrite(STEPPER_STEP_PIN, HIGH);
         delayMicroseconds(STEP_DELAY_US);
@@ -365,8 +375,27 @@ void calibrateTofSensor() {
     }
     tofBottomDistance = readTofSensor();
     Serial.println("bottom limit switch activated");
+    Serial.print("Bottom pos: ");
+    Serial.println(tofBottomDistance);
 }
 
-// TODO: Mangler koden der skal få motoren til at køre mod bottom limit switch
-//       baseret på difficulty.
+/*
+* Run the motor down based on difficulty
+*/
+void runMotor(int difficulty) {
 
+    if (difficulty == 0) {
+        return;
+    }
+
+    if(digitalRead(LIMIT_SWITCH_BOTTOM_PIN) == LOW){
+        return;
+    }
+
+    int stepDelay = map(difficulty, 1000, 100, 1, 10);
+
+    digitalWrite(STEPPER_STEP_PIN, HIGH);
+    delayMicroseconds(stepDelay);
+    digitalWrite(STEPPER_STEP_PIN, LOW);
+    delayMicroseconds(stepDelay);
+}
