@@ -97,8 +97,6 @@ void setup() {
     tof.init(); // TODO: afgør om der skal være et tjek af om init gik godt.
     tof.startContinuous();
 
-
-    // TODO: implementer kalibration og kald den her
     calibrateTofSensor();
 
     // connecter til wifi
@@ -119,7 +117,6 @@ void loop() {
     difficulty = map(analogRead(POTENTIOMETER_PIN), 0, 4095, 0, 10);
     tofDistance = readTofSensor() - tofBottomDistance; // tof.readRangeContinuousMillimeters(); // TODO: opdater med fejlen fra kalibrationen!
 
-    // TODO: fix konvertering af tofDistance og max_distance til cm, float med digit (eg. (float) max_distance / 100 )
     max_distance = max(tofDistance, max_distance);
 
     // TIL TEST
@@ -155,7 +152,7 @@ void loop() {
     if (digitalRead(STOP_BUTTON_PIN) == LOW && session_in_progress) {
         bool result = stopSession(session_uuid);
         session_in_progress = !result;  // opdatere session state ud fra return af stop_session.
-        updateDisplay("Session has ended\n\nMax distance for session was: " + String((float)max_distance / 10)); // TODO opdater med konverteringen når den er lavet..
+        updateDisplay("Session has ended\n\nMax distance for session was: " + String((float)max_distance / 10));
     }
 
     if (session_in_progress == true) {
@@ -351,7 +348,6 @@ uint16_t readTofSensor() {
 */
 void calibrateTofSensor() {
     Serial.println("calibrating ToF");
-    // TODO: tjek at motorene køre den rigtige vej!
     digitalWrite(STEPPER_DIR_PIN, MOTOR_UP);
     delayMicroseconds(10);
 
