@@ -155,7 +155,7 @@ void loop() {
     if (digitalRead(STOP_BUTTON_PIN) == LOW && session_in_progress) {
         bool result = stopSession(session_uuid);
         session_in_progress = !result;  // opdatere session state ud fra return af stop_session.
-        updateDisplay("Session has ended\n\nMax distance for session was: " + String(max_distance)); // TODO opdater med konverteringen når den er lavet..
+        updateDisplay("Session has ended\n\nMax distance for session was: " + String((float)max_distance / 10)); // TODO opdater med konverteringen når den er lavet..
     }
 
     if (session_in_progress == true && (millis() - TCP_MESSAGE_INTERVAL) > last_tcp_message_send_time) {
@@ -166,11 +166,11 @@ void loop() {
         if (tof.timeoutOccurred()) {
             updateDisplay("Fejl: Kunne ikke læse afstands sensor!");
         } else {
-            updateDisplay("Distance: " + String(tofDistance) +" (some unit)");
+            updateDisplay("Distance: " + String((float)tofDistance / 10) +" (some unit)");
             bool sendDataResult = send_session_data();
 
             if (sendDataResult == true) {
-                updateDisplay("Session in prograss\nDistance: " + String(tofDistance, 2) + "\n\nMax distance: " + String(max_distance, 2) + "\n Difficulty: " + String(difficulty));
+                updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10, 2) + "\n\nMax distance: " + String((float)max_distance / 10, 2) + "\n Difficulty: " + String(difficulty));
             } else {
                 updateDisplay("kunne ikke sende data!");
             }
