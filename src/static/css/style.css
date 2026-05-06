@@ -257,10 +257,11 @@ h2 {
 }
 
 .right-section {
-    flex: 0 0 420px;
+    flex: 1 1 500px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    padding-top: 180px;
 }
 
 .user-grid {
@@ -390,18 +391,15 @@ h2 {
 }
 
 .product-box {
-    width: 100%;
-    max-width: 520px;
-    height: 650px;
-    background: #7f7f7f;
-    border-radius: 28px;
+    width: 50px;
+    max-width: none;
+    height: auto;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #f0f0f0;
-    font-size: 2rem;
-    text-align: center;
-    padding: 20px;
 }
 
 .back-link {
@@ -414,6 +412,20 @@ h2 {
 
 .back-link:hover {
     text-decoration: underline;
+}
+
+.rotated-image {
+    width: 800px;
+    height: auto;
+    transform: rotate(-90deg);
+    display: block;
+}
+
+.content_login {
+    padding: 52px 42px;
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
 }
 
 /* ---------- SESSION CARDS (users_sessions / session_details) ---------- */
