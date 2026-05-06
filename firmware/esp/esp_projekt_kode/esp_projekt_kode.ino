@@ -47,7 +47,7 @@ const char* WIFI_SSID = "<wifi name>";				    // update ssid
 const char* WIFI_PASSWORD = "<wifi password>";			// update pw
 const char* SERVER_BASE_URL = "http://<...ip...:5050";	// update ip
 
-const int SECOND_IN_MILLIS = 1000;
+const int SECOND_IN_MILLIS = 500;
 
 // ___ data sending consts and variables ___
 // Data til server
@@ -105,7 +105,7 @@ void setup() {
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
-        updateDisplay("No network \nconnection..");
+        updateDisplay("No network ;connection..");
     }
     Serial.println("\nForbundet! IP: " + WiFi.localIP().toString());
 }
@@ -135,7 +135,7 @@ void loop() {
         if (!user_logged_in) {
             updateDisplay("no one logged in");
         } else {
-            updateDisplay("user is logged in\n ready to start");
+            updateDisplay("user is logged in ;ready to start");
         }
 
     // Start button
@@ -155,7 +155,7 @@ void loop() {
     if (digitalRead(STOP_BUTTON_PIN) == LOW && session_in_progress) {
         bool result = stopSession(session_uuid);
         session_in_progress = !result;  // opdatere session state ud fra return af stop_session.
-        updateDisplay("Session has ended\n\nMax distance for session was: " + String((float)max_distance / 10) + " cm");
+        updateDisplay("Session has ended ; ;Max distance for session was: " + String((float)max_distance / 10) + " cm");
     }
 
     if (session_in_progress == true) {
@@ -170,11 +170,11 @@ void loop() {
             if (tof.timeoutOccurred()) {
                 updateDisplay("Fejl: Kunne ikke læse afstands sensor!");
             } else {
-                updateDisplay("Distance: " + String((float)tofDistance / 10) + " cm");
+                // updateDisplay("Distance: " + String((float)tofDistance / 10) + " cm");
                 bool sendDataResult = send_session_data();
 
                 if (sendDataResult == true) {
-                    updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10) + " cm" + "\n\nMax distance: " + String((float)max_distance / 10) + " cm" + "\n Difficulty: " + String(difficulty));
+                    updateDisplay("Session in prograss\nDistance: " + String((float)tofDistance / 10) + " cm" + " ;Max distance: " + String((float)max_distance / 10) + " cm" + ";Difficulty: " + String(difficulty));
                 } else {
                     updateDisplay("kunne ikke sende data!");
                 }
