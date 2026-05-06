@@ -4,7 +4,7 @@
 
 // ESP8266 I2C pins:
 // SDA = D2 = GPIO4
-// SCL = D1 = GPIO5
+// SCL = D1 = GPI14
 SH1106Wire display(0x3c, 4, 14);
 
 String incoming = "";
@@ -32,7 +32,7 @@ void setup() {
   Serial.begin(9600);      // Must match ESP32 UART baud rate
   Serial.setTimeout(50);
 
-  Wire.begin(4, 5);
+  Wire.begin(4, 5); //TODO: change to (4,14)
 
   display.init();
   display.clear();
