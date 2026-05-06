@@ -39,7 +39,7 @@ def index():
     user = session.get("username")
     user_id = session.get("user_id")
     session_info = get_users_sessions(user_id)
-
+    best_max_distance = 0.0
     session_data_with_durations = []  # TODO: appending durations til sessions bør gøres i database kaldet...
     for s in session_info:
         s = dict(s)
@@ -47,13 +47,14 @@ def index():
             duration = calculate_duration(s["start_time"], s["end_time"])
         else:
             duration = "Not ended"
+        if s["max_distance"]:
+            best_max_distance = max(best_max_distance, s["max_distance"])
         s["duration"] = duration
         session_data_with_durations.append(s)
 
     latest_session = get_latest_session(user_id)
 
-    sessions_overview = {"best_max_distance": latest_session["max_distance"] if latest_session
-                                            and latest_session["max_distance"] else 0.0
+    sessions_overview = {"best_max_distance": best_max_distance
                         , "latest_session_date": latest_session["start_time"] if latest_session
                                             and latest_session["start_time"] else None
                         , "latest_duration": calculate_duration(latest_session["start_time"],latest_session["end_time"])
