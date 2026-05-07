@@ -122,4 +122,4 @@ OLED displayet skulle gerne vise teksten: 'GenStraek'
 og ToF sensoren skulle meget gerne gå i gang med at kalibrere ved at køre håndtaget op og derefter ned.
 
 ### Wiring se diagram ... 
-<indsæt billede af wiring diagram>
+![circuit diagram](firmware/diagrams/circuit_diagram.png)
