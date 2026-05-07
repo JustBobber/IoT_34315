@@ -116,10 +116,11 @@ Kør derefter seed scriptet igen for at få data i databasen.
 
 ---
 
-## Start ESP
+## Start ESP's
 Forbind det to ESP'er til power. 
 OLED displayet skulle gerne vise teksten: 'GenStraek' 
 og ToF sensoren skulle meget gerne gå i gang med at kalibrere ved at køre håndtaget op og derefter ned.
+Hvis det er tilfældet, så bør det hele være sat op korrekt og klar til at blive brugt.
 
-### Wiring se diagram ... 
+# Circuit diagram
 ![circuit diagram](firmware/diagrams/circuit_diagram.png)
