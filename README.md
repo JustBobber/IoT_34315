@@ -117,11 +117,9 @@ Kør derefter seed scriptet igen for at få data i databasen.
 ---
 
 ## Start ESP
-Beskriv hvad der skal til får at køre ESP'erne.
+Forbind det to ESP'er til power. 
+OLED displayet skulle gerne vise teksten: 'GenStraek' 
+og ToF sensoren skulle meget gerne gå i gang med at kalibrere ved at køre håndtaget op og derefter ned.
 
 ### Wiring se diagram ... 
 <indsæt billede af wiring diagram>
-
-### Download firmware
-Download /firmware/.. til esp'erne ...
-
