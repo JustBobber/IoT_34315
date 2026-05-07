@@ -46,6 +46,7 @@
                 {% endif %}
                 {% if session_info.average_difficulty %}
                 <div class="info-row">
+                    <img src="{{ url_for('static', filename='images/small_Streak.png') }}" class="icon">
                     Average difficulty: {{ session_info.average_difficulty }}
                 </div>
                 {% endif %}
