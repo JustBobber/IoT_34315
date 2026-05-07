@@ -6,7 +6,7 @@
 
 ---
 
-## Opsætning
+## Opsætning af webserver
 
 ### 1. Klon projektet
 
@@ -40,6 +40,29 @@ Du kan se at miljøet er aktivt når terminalen viser `(.venv)` foran din prompt
 ```bash
 pip install -r requirements.txt
 ```
+
+## Opsætning af ESP'er
+De to ESP'er skal have installeret firmware. Filerne ligger i ./firmware/esp/ESP8266_disp og ./firmware/esp/ESP32S3-Nano_controller til ESP8266 og ESP32S3 hhv.
+
+### Installer firmware til ESP8266
+Inden installation af firmwaren, kan det være nødvendigt at disconnecte RX-TX linket mellem ESP32 og ESP8266.
+Åben filen ./firmware/esp/ESP8266_disp/ESP8266_disp.ino i Arduino IDE og installer den på ESP8266'eren.
+
+Husk at forbind TX-RX linket igen hvis det er disconnected.
+
+### Installer firmware til ESP32S3-Nano
+
+Åben filen ./firmware/esp/ESP8266_disp/ESP32S3-Nano_controller.ino i Arduino IDE 
+Opdater linje 45-48 til wifi netværk, password og serverens ip addresse:
+```
+/*
+* Sørg for at starte serveren for at modtage og se dataene på localhost:5050.
+*/
+const char* WIFI_SSID = "<wifi name>";				    // update ssid
+const char* WIFI_PASSWORD = "<wifi password>";			// update pw
+const char* SERVER_BASE_URL = "http://<...ip...:5050";	// update ip
+```
+Når netværks instillernge er sat, installer koden på ESP32'eren.
 
 ---
 
