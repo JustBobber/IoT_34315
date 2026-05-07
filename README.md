@@ -67,15 +67,15 @@ Når netværks instillernge er sat, installer koden på ESP32'eren.
 ---
 
 # Daglig brug
-For at køre projektet er der to ting du skal have kørende: webappen og ESP'en.
+For at køre projektet er der to ting du skal have kørende: webappen og ESP'erne.
 Webappen står for backed og frontend. Der modtager data fra ESP, logger det i database og laver en hjemmeside hvor dataen kan ses.
 
-ESP'en står indsamler og sender data til webappen når en træning session er i gang. Ellers poller den serveren for at 
+ESP'erne står indsamler og sender data til webappen når en træning session er i gang. Ellers poller den serveren for at 
 tjekke om der er en user logget ind da dette er et krav for at kunne påbegynde en træningssession. 
 
 ## Start server, webapp og populer database
 
-### Aktiver virtual enviroment
+### Aktiver virtual environment
 Hver gang du åbner en ny terminal skal du aktivere miljøet igen:
 
 ```bash
